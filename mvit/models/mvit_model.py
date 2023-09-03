@@ -33,7 +33,7 @@ class MvitTrainer(Trainer):
       param.requires_grad = False
     mvit_model.head[1] = torch.nn.Linear(in_features=768, out_features=7, bias=True)
     mvit_model.load_state_dict(torch.load(self.model_param_path))
-    optimizer = torch.optim.Adam(mvit_model.head[1].parameters(), lr=0.01)
+    optimizer = torch.optim.Adam(mvit_model.head[1].parameters(), lr=learning_rate)
     return mvit_model, optimizer
 
 
@@ -47,5 +47,5 @@ class MvitTrainer(Trainer):
     for param in mvit_model.parameters():
       param.requires_grad = False
     mvit_model.head[1] = torch.nn.Linear(in_features=768, out_features=7, bias=True)
-    optimizer = torch.optim.Adam(mvit_model.head[1].parameters(), lr=0.01)
+    optimizer = torch.optim.Adam(mvit_model.head[1].parameters(), lr=learning_rate)
     return mvit_model, optimizer
