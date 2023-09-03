@@ -108,20 +108,18 @@ class Trainer():
       if summary_only:
         print('.', end='')
       else:
-        print('Trained Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
+        print('    Trained Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
       if (i+1) % int(self.dataset_video_count / param_save_per_epochs) == 0:
         self.save_model()
     average_training_loss = sum(loss_list) / len(loss_list)
     average_training_accuracy = sum(accuracy_list) / len(accuracy_list)
     print('Training Summary;  Average Accuracy: {}; Average Loss: {}'.format(average_training_accuracy, average_training_loss))
 
-    print('------------------------------------------------------')
-
   def evaluate_model(self, summary_only=True):
     '''
     Function to evaluate model performance
     '''
-    print('Starting Evaluating model-----------------------------')
+    print('Starting Evaluating model')
     accuracy_list = []
     loss_list = []
     for i, video_index in enumerate(self.validation_video_index):
@@ -134,7 +132,7 @@ class Trainer():
       if summary_only:
         print('.', end='')
       else:
-        print('Evaluation Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
+        print('    Evaluation Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
     average_evaluation_loss = sum(loss_list) / len(loss_list)
     average_evaluation_accuracy = sum(accuracy_list) / len(accuracy_list)
     print('Evaluation Summary;  Average Accuracy: {}; Average Loss: {}'.format(average_evaluation_accuracy, average_evaluation_loss))
@@ -142,5 +140,5 @@ class Trainer():
 
   def train_model(self, epochs, summary_only=True):
     for i in range(1, epochs+1):
-      print('Training Epoch: {}.................................'.format(i))
+      print('Training Epoch: {}'.format(i))
       self.train_stage(param_save_per_epochs=5, summary_only=summary_only)
