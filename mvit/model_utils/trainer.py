@@ -37,10 +37,13 @@ class Trainer():
     self.model.eval()
     running_loss = 0.0
     accurate_classifications = 0
+    datapoints_seen = 0
     since = time.time()
     for inputs, labels in dataloader:
       inputs = inputs.to(self.device)
       labels = labels.to(self.device)
+      datapoints_seen += inputs.shape[0]
+
       with torch.set_grad_enabled(False):
         outputs = self.model(inputs)
         loss = self.loss_fn(outputs, labels)
@@ -48,8 +51,8 @@ class Trainer():
         running_loss += loss.item()
         accurate_classifications += sum(pred==labels).item()
 
-    average_loss = running_loss / len(dataloader) / inputs.shape[0]
-    accuracy = accurate_classifications / len(dataloader) / inputs.shape[0]
+    average_loss = running_loss / datapoints_seen
+    accuracy = accurate_classifications / datapoints_seen
     time_elapsed = time.time() - since
     return {'average_loss':average_loss, 'accuracy':accuracy, 'time_elapsed':time_elapsed}
 
