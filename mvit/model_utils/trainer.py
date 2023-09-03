@@ -92,7 +92,7 @@ class Trainer():
     return {'average_loss':average_loss, 'accuracy':accuracy, 'time_elapsed':time_elapsed}
 
 
-  def train_stage(self, param_save_per_epochs):
+  def train_stage(self, param_save_per_epochs, summary_only):
     '''
     Function to train entire dataset one epoch
     '''
@@ -105,7 +105,10 @@ class Trainer():
       loss = statistics['average_loss']
       accuracy_list.append(accuracy)
       loss_list.append(loss)
-      print('Trained Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
+      if summary_only:
+        print('.', end='')
+      else:
+        print('Trained Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
       if (i+1) % int(self.dataset_video_count / param_save_per_epochs) == 0:
         self.save_model()
     average_training_loss = sum(loss_list) / len(loss_list)
@@ -114,7 +117,7 @@ class Trainer():
 
     print('------------------------------------------------------')
 
-  def evaluate_model(self):
+  def evaluate_model(self, summary_only=True):
     '''
     Function to evaluate model performance
     '''
@@ -128,13 +131,16 @@ class Trainer():
       loss = statistics['average_loss']
       accuracy_list.append(accuracy)
       loss_list.append(loss)
-      print('Evaluation Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
+      if summary_only:
+        print('.', end='')
+      else:
+        print('Evaluation Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
     average_evaluation_loss = sum(loss_list) / len(loss_list)
     average_evaluation_accuracy = sum(accuracy_list) / len(accuracy_list)
     print('Evaluation Summary;  Average Accuracy: {}; Average Loss: {}'.format(average_evaluation_accuracy, average_evaluation_loss))
 
 
-  def train_model(self, epochs):
+  def train_model(self, epochs, summary_only=True):
     for i in range(1, epochs+1):
       print('Training Epoch: {}.................................'.format(i))
-      self.train_stage(param_save_per_epochs=5)
+      self.train_stage(param_save_per_epochs=5, summary_only=summary_only)
