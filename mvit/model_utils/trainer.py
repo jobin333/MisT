@@ -96,7 +96,7 @@ class Trainer():
       statistics = self.train_step(dataloader)
       accuracy = statistics['accuracy']
       loss = statistics['average_loss']
-      print('Trained Video No: {};  Accuracy: {}; Loss: {}'.format(self.cholec80_dataset_manager.video_index, accuracy, loss))
+      print('Trained Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
       if (i+1) % int(self.dataset_video_count / param_save_per_epochs) == 0:
         self.save_model()
     print('------------------------------------------------------')
@@ -111,7 +111,7 @@ class Trainer():
       statistics = self.eval_step(dataloader)
       accuracy = statistics['accuracy']
       loss = statistics['average_loss']
-      print('Evaluation Video No: {};  Accuracy: {}; Loss: {}'.format(self.cholec80_dataset_manager.video_index, accuracy, loss))
+      print('Evaluation Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
 
   def train_model(self, epochs):
     for i in range(1, epochs+1):
