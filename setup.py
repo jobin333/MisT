@@ -7,5 +7,5 @@ setup(
     author='Jobin Jose',
     author_email='jobin.jbn@gmail.com',
     packages=find_packages(),
-    install_requires=[ ],
+    install_requires=['av'],
 )
