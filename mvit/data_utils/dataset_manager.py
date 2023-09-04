@@ -10,13 +10,16 @@ class Cholec80DatasetManager():
   dataloader = dm.get_dataloader()
   '''
 
-  def __init__(self, cholec80_dataset_location, sampling_factor, tubelet_size, batch_size):
+  def __init__(self, cholec80_dataset_location, sampling_factor, 
+               tubelet_size, batch_size, frame_skips, debugging=False):
     self.cholec80_dataset_location = cholec80_dataset_location
     self.sampling_factor = sampling_factor
     self.tubelet_size = tubelet_size
     self.batch_size = batch_size
     self.video_index= 0
-    self.dataset_length = 80 #T here are 80 vidoes in the Cholec80 dataset
+    self.dataset_length = 80 #There are 80 vidoes in the Cholec80 dataset
+    self.debugging = debugging # If debugging is enabled the dataloader produce only one tubelet
+    self.frame_skips = frame_skips # Intra tubelet skips
 
   def __len__(self):
     return self.dataset_length
@@ -40,6 +43,7 @@ class Cholec80DatasetManager():
     timestamp_path = os.path.join(self.cholec80_dataset_location, timestamp_path)
 
     videoreader = VideoReader(video_path=video_path, timestamp_path=timestamp_path,
-                        sampling_factor=self.sampling_factor, tubelet_size=self.tubelet_size)
+                        sampling_factor=self.sampling_factor, tubelet_size=self.tubelet_size,
+                        frame_skips=self.frame_skips, debugging=self.debugging)
     dataloader = DataLoader(videoreader, batch_size=self.batch_size, shuffle=True)
     return dataloader

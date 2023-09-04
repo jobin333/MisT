@@ -16,7 +16,8 @@ class VideoReader(torch.utils.data.Dataset):
                               image_shape=image_shape, sampling_factor=sampling_factor)
   cholec80_ds = video_reader.get_dataset()
   '''
-  def __init__(self, video_path, timestamp_path, sampling_factor, tubelet_size, aproximate_keyframe_interval = 10):
+  def __init__(self, video_path, timestamp_path, tubelet_size, frame_skips, debugging=False,
+                aproximate_keyframe_interval = 10):
     self.surgical_timestamp_df = pd.read_csv(timestamp_path, sep='\t').set_index('Frame')
     # self.surgical_phases = list(self.surgical_timestamp_df.Phase.unique())
     self.surgical_phases = ['Preparation', 'CalotTriangleDissection', 'ClippingCutting',
@@ -24,12 +25,13 @@ class VideoReader(torch.utils.data.Dataset):
                             'CleaningCoagulation', 'GallbladderRetraction']
     self.surgical_phase_vocab = build_vocab_from_iterator([self.surgical_phases])
     self.reader = torchvision.io.VideoReader(video_path, "video")
-    self.sampling_factor = sampling_factor
+    self.frame_skips = frame_skips
 
     self.video_fps = self.reader.get_metadata()['video']['fps'][0]
     self.video_duration = self.reader.get_metadata()['video']['duration'][0]
     self.tubelet_size = tubelet_size
     self.aproximate_keyframe_interval = aproximate_keyframe_interval
+    self.debugging = debugging
   def _time_to_timestamp_string(self, t):
     '''
     Convert floating point time to Cholec80 timestamp format.
@@ -51,7 +53,7 @@ class VideoReader(torch.utils.data.Dataset):
     frames = []
     labels = []
     for i,f in enumerate(self.reader):
-      if i%self.sampling_factor != 0:
+      if i%(self.frame_skips+1) != 0:
         continue
       frame = f['data']
       timestamp = f['pts'] + 0.04
@@ -80,8 +82,11 @@ class VideoReader(torch.utils.data.Dataset):
 
     It will return number of items in the dataset.
     '''
-    # return 1 ################################################ For debugging
-    return int(self.video_duration / self.aproximate_keyframe_interval)
+    ### If debugging is enabled, it will set the size of the dataloader to 1.
+    if self.debugging:
+      return 1
+    else:
+      return int(self.video_duration / self.aproximate_keyframe_interval)
 
   def __getitem__(self, i):
     '''
