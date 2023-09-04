@@ -10,10 +10,9 @@ class Cholec80DatasetManager():
   dataloader = dm.get_dataloader()
   '''
 
-  def __init__(self, cholec80_dataset_location, sampling_factor, 
+  def __init__(self, cholec80_dataset_location, 
                tubelet_size, batch_size, frame_skips, debugging=False):
     self.cholec80_dataset_location = cholec80_dataset_location
-    self.sampling_factor = sampling_factor
     self.tubelet_size = tubelet_size
     self.batch_size = batch_size
     self.video_index= 0
