@@ -10,12 +10,16 @@ class MvitTrainer(Trainer):
   The __init__ model should set the data self.model and self.model_param_path
   '''
   def __init__(self, cholec80_dataset_manager, device, save_dir='./', fresh_model=False,
-               enable_finetune=False, learning_rate=0.01, optimizer_name='adam', num_head_layers=1):
+               enable_finetune=False, learning_rate=0.01, optimizer_name='adam', 
+               num_head_layers=1, delete_existing_model=False):
     super(MvitTrainer, self).__init__(cholec80_dataset_manager, device)
 
     self.model_param_path = os.path.join(save_dir, 'best_model_params.pt')
-    self.model, self.optimizer = self.create_model(learning_rate=learning_rate, optimizer_name=optimizer_name,
-                              num_head_layers=num_head_layers, fresh_model=fresh_model, enable_finetune=enable_finetune)
+    self.model, self.optimizer = self.create_model(learning_rate=learning_rate,
+                              optimizer_name=optimizer_name,
+                                num_head_layers=num_head_layers, fresh_model=fresh_model, 
+                                enable_finetune=enable_finetune, 
+                                delete_existing_model=delete_existing_model)
     self.model.to(device)
 
   def create_head_layer(self, num_head_layers):
