@@ -14,7 +14,7 @@ class MvitTrainer(Trainer):
     super(MvitTrainer, self).__init__(cholec80_dataset_manager, device)
 
     self.model_param_path = os.path.join(save_dir, 'best_model_params.pt')
-    self.model = self.create_model(learning_rate=learning_rate, optimizer_name=optimizer_name,
+    self.model, self.optimizer = self.create_model(learning_rate=learning_rate, optimizer_name=optimizer_name,
                               num_head_layers=num_head_layers, fresh_model=fresh_model, enable_finetune=enable_finetune)
     self.model.to(device)
 
