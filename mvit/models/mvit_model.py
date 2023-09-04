@@ -83,6 +83,7 @@ class MvitTrainer(Trainer):
       # self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=7, gamma=0.1)
 
     ### For fine turning
+    #### Modification needed. Optimizer not included
     if enable_finetune:
       for param in model.parameters():
         param.requires_grad = True
