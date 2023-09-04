@@ -111,14 +111,14 @@ class Trainer():
       if summary_only:
         print('.', end='')
       else:
-        print('    Trained Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
+        print('    Trained Video No: {};  Accuracy: {:.2f}; Loss: {:.2f}'.format(video_index, accuracy, loss))
       if (i+1) % int(self.dataset_video_count / param_save_per_epochs) == 0:
         self.save_model()
     average_training_loss = sum(loss_list) / len(loss_list)
     average_training_accuracy = sum(accuracy_list) / len(accuracy_list)
     time_taken = sum(time_list)
     print('')
-    print('Training Summary;  Average Accuracy: {}; Average Loss: {}; Execution Time {}'.format(average_training_accuracy, average_training_loss, time_taken))
+    print('Training Summary;  Average Accuracy: {:.2f}; Average Loss: {:.2f}; Execution Time {:.2f}'.format(average_training_accuracy, average_training_loss, time_taken))
 
   def evaluate_model(self, summary_only=True):
     '''
@@ -140,12 +140,12 @@ class Trainer():
       if summary_only:
         print('.', end='')
       else:
-        print('    Evaluation Video No: {};  Accuracy: {}; Loss: {}'.format(video_index, accuracy, loss))
+        print('    Evaluation Video No: {};  Accuracy: {:.2f}; Loss: {:.2f}'.format(video_index, accuracy, loss))
     average_evaluation_loss = sum(loss_list) / len(loss_list)
     average_evaluation_accuracy = sum(accuracy_list) / len(accuracy_list)
     total_time_taken = sum(time_list)
     print('')
-    print('Evaluation Summary;  Average Accuracy: {}; Average Loss: {}; Execution Time {}'.format(average_evaluation_accuracy, average_evaluation_loss, total_time_taken))
+    print('Evaluation Summary;  Average Accuracy: {:.2f}; Average Loss: {:.2f}; Execution Time {:.2f}'.format(average_evaluation_accuracy, average_evaluation_loss, total_time_taken))
 
 
   def train_model(self, epochs, summary_only=True):
