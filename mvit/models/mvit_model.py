@@ -48,12 +48,14 @@ class MvitTrainer(Trainer):
     return head_layer
 
 
-  def create_model(self, learning_rate:float, optimizer_name:str, num_head_layers:int, fresh_model:bool, enable_finetune:bool):
+  def create_model(self, learning_rate:float, optimizer_name:str,
+                    num_head_layers:int, fresh_model:bool, 
+                    enable_finetune:bool, delete_existing_model=False):
     '''
     A function to create transfer learing model of MVIT. For this model the parameter weight of torchvision.model package is utilized.
     '''
     ### For preventing accedental overwrite of saved model
-    if os.path.exists(self.model_param_path) and fresh_model:
+    if os.path.exists(self.model_param_path) and fresh_model and not delete_existing_model:
       raise Exception('Trained model is already exist. If you need create a fresh model please remove {} file'.format(self.model_param_path))
 
     ### For loading already existing model
