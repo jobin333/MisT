@@ -6,7 +6,7 @@ from mvit.data_utils.video_reader import VideoReader
 class Cholec80DatasetManager():
   '''
   ####### Example
-  dm = Cholec80DatasetManager(data_path, sampling_factor, tubelet_size, batch_size)
+  dm = Cholec80DatasetManager(data_path, tubelet_size, batch_size)
   dataloader = dm.get_dataloader()
   '''
 
@@ -42,7 +42,7 @@ class Cholec80DatasetManager():
     timestamp_path = os.path.join(self.cholec80_dataset_location, timestamp_path)
 
     videoreader = VideoReader(video_path=video_path, timestamp_path=timestamp_path,
-                        sampling_factor=self.sampling_factor, tubelet_size=self.tubelet_size,
+                        tubelet_size=self.tubelet_size,
                         frame_skips=self.frame_skips, debugging=self.debugging)
     dataloader = DataLoader(videoreader, batch_size=self.batch_size, shuffle=True)
     return dataloader
