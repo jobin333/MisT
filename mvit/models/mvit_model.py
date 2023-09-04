@@ -40,8 +40,9 @@ class MvitTrainer(Trainer):
       head = head1
     elif num_head_layers == 2:
       head = head2
-    else:
-      raise Exception('Please select num_head to 1 or 2')
+    elif num_head_layers == 3:
+      head = head3
+      raise Exception('Please select num_head to 1, 2 or 3')
 
     head_layer = torch.nn.Sequential(*head)
     return head_layer
@@ -70,9 +71,9 @@ class MvitTrainer(Trainer):
 
     ### Optimizer Selection
     if optimizer_name == 'adam':
-      optimizer = torch.optim.Adam(model.head[1].parameters(), lr=learning_rate)
+      optimizer = torch.optim.Adam(model.head.parameters(), lr=learning_rate)
     if optimizer_name == 'sgd':
-      optimizer = torch.optim.SGD(model.head[1].parameters(), lr=learning_rate, momentum=0.9)
+      optimizer = torch.optim.SGD(model.head.parameters(), lr=learning_rate, momentum=0.9)
       # self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=7, gamma=0.1)
 
     ### For fine turning
