@@ -46,6 +46,7 @@ class MvitTrainer(Trainer):
       head = head2
     elif num_head_layers == 3:
       head = head3
+    else:
       raise Exception('Please select num_head to 1, 2 or 3')
 
     head_layer = torch.nn.Sequential(*head)
