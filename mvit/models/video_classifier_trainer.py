@@ -6,7 +6,7 @@ from mvit.model_utils.trainer import Trainer
 
 def get_video_resnet(model_head, download_pretrained_weights):
   if download_pretrained_weights:
-    model = torchvision.models.video.r3d_18(torchvision.models.video.R3D_18_Weights.DEFAULT)
+    model = torchvision.models.video.r3d_18(weights=torchvision.models.video.R3D_18_Weights.DEFAULT)
   else:
     model = torchvision.models.video.r3d_18()
   for param in model.parameters():
@@ -69,7 +69,7 @@ def get_s3d_model(model_head, download_pretrained_weights):
 
 def get_swin3d(model_head, download_pretrained_weights):
   if download_pretrained_weights:
-    model = torchvision.models.video.swin3d_s(torchvision.models.video.Swin3D_S_Weights.DEFAULT)
+    model = torchvision.models.video.swin3d_s(weights=torchvision.models.video.Swin3D_S_Weights.DEFAULT)
   else:
     model = torchvision.models.video.swin3d_s()
   for param in model.parameters():
@@ -102,8 +102,13 @@ class VideoClassifierTrainer(Trainer):
   The __init__ model should set the data self.model and self.model_param_path
   '''
   def __init__(self, cholec80_dataset_manager, device, model_name,
-                model_head, save_dir='./', fresh_model=False,enable_finetune=False,
+                model_head, save_dir='./', fresh_model=False, enable_finetune=False,
                   learning_rate=0.01, optimizer_name='adam', delete_existing_model=False):
+    '''
+    args:
+        model_name: 'video_resnet', 'swin3d', 's3d', 'mvit'
+        model_head: video_resnet:1,2; swin3d:1,2; s3d:1, mvit:1
+    '''
     
     super(VideoClassifierTrainer, self).__init__(cholec80_dataset_manager, device)
     complete_model_name = 'save_{}_{}.pt'.format(model_name, model_head)
