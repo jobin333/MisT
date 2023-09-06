@@ -92,7 +92,7 @@ class Trainer():
     return {'average_loss':average_loss, 'accuracy':accuracy, 'time_elapsed':time_elapsed}
 
 
-  def train_stage(self, param_save_per_epochs, summary_only, run_evaluation=False):
+  def train_stage(self, param_save_per_epochs, summary_only, run_evaluation):
     '''
     Function to train entire dataset one epoch
     '''
@@ -150,7 +150,7 @@ class Trainer():
     print('Evaluation Summary;  Average Accuracy: {:.2f}; Average Loss: {:.2f}; Execution Time {:.2f}'.format(average_evaluation_accuracy, average_evaluation_loss, total_time_taken))
 
 
-  def train_model(self, epochs, summary_only=True):
+  def train_model(self, epochs, summary_only=True, run_evaluation=False):
     for i in range(1, epochs+1):
       print('Training Epoch: {}'.format(i), end=' ')
-      self.train_stage(param_save_per_epochs=5, summary_only=summary_only)
+      self.train_stage(param_save_per_epochs=5, summary_only=summary_only, run_evaluation=run_evaluation)
