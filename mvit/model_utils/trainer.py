@@ -92,7 +92,7 @@ class Trainer():
     return {'average_loss':average_loss, 'accuracy':accuracy, 'time_elapsed':time_elapsed}
 
 
-  def train_stage(self, param_save_per_epochs, summary_only):
+  def train_stage(self, param_save_per_epochs, summary_only, run_evaluation=False):
     '''
     Function to train entire dataset one epoch
     '''
@@ -119,6 +119,8 @@ class Trainer():
     time_taken = sum(time_list)
     print('')
     print('Training Summary;  Average Accuracy: {:.2f}; Average Loss: {:.2f}; Execution Time {:.2f}'.format(average_training_accuracy, average_training_loss, time_taken))
+    if run_evaluation:
+      self.evaluate_model(summary_only=summary_only)
 
   def evaluate_model(self, summary_only=True):
     '''
