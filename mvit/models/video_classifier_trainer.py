@@ -123,6 +123,7 @@ class VideoClassifierTrainer(Trainer):
         self.model = model_functions[model_name](model_head=model_head,
                 download_pretrained_weights=True)
     else:
+        print('Loading model from {}'.format(self.model_param_path))
         self.model = model_functions[model_name](model_head=model_head,
                 download_pretrained_weights=False)
         self.model.load_state_dict(torch.load(self.model_param_path))
