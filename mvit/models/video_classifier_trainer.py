@@ -136,7 +136,7 @@ class VideoClassifierTrainer(Trainer):
     complete_model_name = 'save_{}_{}.pt'.format(model_name, model_head)
     self.model_param_path = os.path.join(save_dir, complete_model_name)
     
-    self.model = create_classifier_model(model_name=model_name, model_head=model_head, save_dir=save_dir,
+    self.model = create_classifier_model(model_name=model_name, model_head=model_head, 
                                        fresh_model=fresh_model, model_param_path=self.model_param_path, delete_existing_model=delete_existing_model)
     if enable_finetune:
       for param in self.model.parameters:
