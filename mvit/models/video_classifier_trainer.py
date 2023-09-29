@@ -96,6 +96,28 @@ model_functions = {
     }
 
 
+def create_classifier_model(model_name,  model_head, fresh_model,
+                delete_existing_model, model_param_path):
+    model_param_path = model_param_path
+    if os.path.exists(model_param_path) and fresh_model and not delete_existing_model:
+      raise Exception('Trained model is already exist. If you need create a fresh model \
+                        please remove {} file'.format(model_param_path))
+    if not os.path.exists(model_param_path) and not fresh_model:
+      raise Exception('Trained model {} does not exist'.format(model_param_path))
+
+    if fresh_model:
+      model = model_functions[model_name](model_head=model_head,
+                download_pretrained_weights=True)
+    else:
+      print('Loading model from {}'.format(model_param_path))
+      model = model_functions[model_name](model_head=model_head,
+              download_pretrained_weights=False)
+      model.load_state_dict(torch.load(model_param_path))
+    return model
+
+
+
+
 class VideoClassifierTrainer(Trainer):
   '''
   Subclass of Trainer class. It is used for training multiple deeplearning model
@@ -113,21 +135,9 @@ class VideoClassifierTrainer(Trainer):
     super(VideoClassifierTrainer, self).__init__(cholec80_dataset_manager, device)
     complete_model_name = 'save_{}_{}.pt'.format(model_name, model_head)
     self.model_param_path = os.path.join(save_dir, complete_model_name)
-    if os.path.exists(self.model_param_path) and fresh_model and not delete_existing_model:
-        raise Exception('Trained model is already exist. If you need create a fresh model \
-                        please remove {} file'.format(self.model_param_path))
-    if not os.path.exists(self.model_param_path) and not fresh_model:
-        raise Exception('Trained model {} does not exist'.format(self.model_param_path))
-
-    if fresh_model:
-        self.model = model_functions[model_name](model_head=model_head,
-                download_pretrained_weights=True)
-    else:
-        print('Loading model from {}'.format(self.model_param_path))
-        self.model = model_functions[model_name](model_head=model_head,
-                download_pretrained_weights=False)
-        self.model.load_state_dict(torch.load(self.model_param_path))
-
+    
+    self.model = create_classifier_model(model_name=model_name, model_head=model_head, save_dir=save_dir,
+                                       fresh_model=fresh_model, model_param_path=self.model_param_path, delete_existing_model=delete_existing_model)
     if enable_finetune:
       for param in self.model.parameters:
         param.requires_grad = True
