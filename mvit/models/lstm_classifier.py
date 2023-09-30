@@ -64,10 +64,10 @@ class LSTMTrainer(Trainer):
       self.classifier_backbone_model = classifier_backbone_model
 
     self.model = TubeletClassifierDrivenLSTM(classifier_backbone_model=self.classifier_backbone_model, 
-                                                classes=backbone_classes, hidden_features=20)
+                                                classes=backbone_classes, hidden_features=hidden_features)
 
     
-    if os.path.exists(model_param_path):
+    if os.path.exists(model_param_path) and not delete_existing_model:
       print('Loading LSTM model from {}'.format(model_param_path))
       self.model.load_state_dict(torch.load(model_param_path))
 
