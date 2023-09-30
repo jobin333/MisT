@@ -6,7 +6,7 @@ import time
 
 
 class TubeletClassifierDrivenLSTM(torch.nn.Module):
-  def __init__(self, classifier_backbone_model, classes, hidden_features):
+  def __init__(self, classifier_backbone_model, classes, hidden_features, device):
     '''
     Batch Size = 1
     '''
@@ -16,11 +16,12 @@ class TubeletClassifierDrivenLSTM(torch.nn.Module):
     self.linear = torch.nn.Linear(hidden_features, classes)
     self.hidden_features = hidden_features
     self.clear_lstm_states()
+    self.device = device
     print('Warning: Please ensure to keep the batch size to 1')
 
 
   def clear_lstm_states(self):
-      h0 = c0 = torch.zeros(1, self.hidden_features)
+      h0 = c0 = torch.zeros(1, self.hidden_features, device=self.device)
       self.lstm_state = (h0, c0)
 
 
@@ -50,6 +51,7 @@ class LSTMTrainer(Trainer):
     
     self.model_param_path = os.path.join(lstm_model_save_dir, lstm_save_file_name)
     self.backbone_model_param_path = os.path.join(lstm_model_save_dir, backbone_save_file_name)
+    self.device = device
 
     if cholec80_dataset_manager.shuffle:
       raise Exception('Training on shuffled dataset is not implemented yet')
@@ -65,7 +67,7 @@ class LSTMTrainer(Trainer):
       self.classifier_backbone_model = classifier_backbone_model
 
     self.model = TubeletClassifierDrivenLSTM(classifier_backbone_model=self.classifier_backbone_model, 
-                                                classes=backbone_classes, hidden_features=hidden_features)
+                                                classes=backbone_classes, hidden_features=hidden_features, device=self.device)
 
     
     if os.path.exists(model_param_path) and not delete_existing_model:
