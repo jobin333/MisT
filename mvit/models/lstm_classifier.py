@@ -37,7 +37,7 @@ class LSTMTrainer(Trainer):
   '''
   def __init__(self, cholec80_dataset_manager, device, classifier_backbone_model=None, 
                classifier_backbone_name=None, classifier_backbone_head=None, 
-               backbone_model_save_dir='./', lstm_save_file_name='lstm.pt', fresh_backbone=False, 
+               backbone_model_save_dir='./', lstm_save_file_name='lstm.pt', backbone_save_file_name='backbone.pt', fresh_backbone=False, 
                enable_finetune=False, lstm_model_save_dir='./',
                   learning_rate=0.01, optimizer_name='adam', delete_existing_model=False,
                 hidden_features=20, backbone_classes=7):
@@ -49,6 +49,7 @@ class LSTMTrainer(Trainer):
     super().__init__(cholec80_dataset_manager, device)
     
     self.model_param_path = os.path.join(lstm_model_save_dir, lstm_save_file_name)
+    self.backbone_model_param_path = os.path.join(lstm_model_save_dir, backbone_save_file_name)
 
     if cholec80_dataset_manager.shuffle:
       raise ('Training on shuffled dataset is not implemented yet')
@@ -59,7 +60,7 @@ class LSTMTrainer(Trainer):
       self.classifier_backbone_model = create_classifier_model(model_name=classifier_backbone_name, 
                                                                model_head=classifier_backbone_head, 
                                                                fresh_model=fresh_backbone, delete_existing_model=False,
-                                                               model_param_path=model_param_path)
+                                                               model_param_path=self.backbone_model_param_path)
     else:
       self.classifier_backbone_model = classifier_backbone_model
 
