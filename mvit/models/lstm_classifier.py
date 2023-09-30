@@ -11,12 +11,12 @@ class TubeletClassifierDrivenLSTM(torch.nn.Module):
     Batch Size = 1
     '''
     super().__init__()
+    self.device = device
     self.classifier_backbone_model = classifier_backbone_model
     self.lstm = torch.nn.LSTM(classes, hidden_features)
     self.linear = torch.nn.Linear(hidden_features, classes)
     self.hidden_features = hidden_features
     self.clear_lstm_states()
-    self.device = device
     print('Warning: Please ensure to keep the batch size to 1')
 
 
