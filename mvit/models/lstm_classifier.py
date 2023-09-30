@@ -4,6 +4,11 @@ from mvit.model_utils.trainer import Trainer
 from mvit.models.video_classifier_trainer import create_classifier_model
 import time
 
+'''
+Functions and classes to add LSTM head to alreay trained swin3d backbone
+Evalutaion function of trainer class not implemented in LSTMTrainer 
+
+'''
 
 class TubeletClassifierDrivenLSTM(torch.nn.Module):
   def __init__(self, classifier_backbone_model, classes, hidden_features, device):
@@ -36,6 +41,7 @@ class LSTMTrainer(Trainer):
   '''
   Subclass of Trainer class. It is used for training LSTM network. 
   It need a pretrained tublet classification model
+  Important: Evaluation functions are not updated
   '''
   def __init__(self, cholec80_dataset_manager, device, classifier_backbone_model=None, 
                classifier_backbone_name=None, classifier_backbone_head=None, 
