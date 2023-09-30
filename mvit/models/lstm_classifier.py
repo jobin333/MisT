@@ -27,7 +27,7 @@ class TubeletClassifierDrivenLSTM(torch.nn.Module):
 
   def forward(self, x):
     x = self.classifier_backbone_model(x)
-    x, self.lstm_state = self.lstm(x)
+    x, self.lstm_state = self.lstm(x, self.lstm_state)
     x = self.linear(x)
     return x
 
@@ -68,7 +68,7 @@ class LSTMTrainer(Trainer):
 
     self.model = TubeletClassifierDrivenLSTM(classifier_backbone_model=self.classifier_backbone_model, 
                                                 classes=backbone_classes, hidden_features=hidden_features, device=self.device)
-
+    self.model.to(self.device)
     
     if os.path.exists(model_param_path) and not delete_existing_model:
       print('Loading LSTM model from {}'.format(model_param_path))
