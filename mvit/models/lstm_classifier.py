@@ -27,8 +27,8 @@ class TubeletClassifierDrivenLSTM(torch.nn.Module):
 
   def forward(self, x):
     x = self.classifier_backbone_model(x)
-    x, self.lstm_state = self.lstm(x, self.lstm_state)
-    self.lstm_state = (state.detach() for state in self.lstm_state)
+    x, (hn, cn) = self.lstm(x, self.lstm_state)
+    self.lstm_state = (hn.detach(), cn.detach())
     x = self.linear(x)
     return x
 
