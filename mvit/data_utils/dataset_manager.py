@@ -36,7 +36,6 @@ class Cholec80DatasetManager():
     else:
       self.video_index = video_index
 
-
     video_path = 'video{:02d}.mp4'.format(self.video_index)
     video_path = os.path.join(self.cholec80_dataset_location, video_path)
     timestamp_path = 'video{:02d}-timestamp.txt'.format(self.video_index)
@@ -45,5 +44,6 @@ class Cholec80DatasetManager():
     videoreader = VideoReader(video_path=video_path, timestamp_path=timestamp_path,
                         tubelet_size=self.tubelet_size,
                         frame_skips=self.frame_skips, debugging=self.debugging)
+    self.current_video_reader = videoreader  ## For debugging purpose
     dataloader = DataLoader(videoreader, batch_size=self.batch_size, shuffle=self.shuffle)
     return dataloader
