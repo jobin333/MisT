@@ -52,7 +52,7 @@ class LSTMTrainer(Trainer):
     self.backbone_model_param_path = os.path.join(lstm_model_save_dir, backbone_save_file_name)
 
     if cholec80_dataset_manager.shuffle:
-      raise ('Training on shuffled dataset is not implemented yet')
+      raise Exception('Training on shuffled dataset is not implemented yet')
     
     if classifier_backbone_model is None:
       complete_model_name = 'save_{}_{}.pt'.format(classifier_backbone_name, classifier_backbone_head)
