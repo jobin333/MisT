@@ -5,7 +5,8 @@ class Trainer():
   '''
   Super class implimenting basic training functionality
   '''
-  def __init__(self, cholec80_dataset_manager, device):
+  def __init__(self, cholec80_dataset_manager, device, retain_graph=False):
+    self.retain_graph=retain_graph
     self.device = device
     self.model_param_path = None
     self.cholec80_dataset_manager = cholec80_dataset_manager
@@ -78,7 +79,7 @@ class Trainer():
       with torch.set_grad_enabled(True):
         outputs = self.model(inputs)
         loss = self.loss_fn(outputs, labels)
-        loss.backward()
+        loss.backward(retain_graph=self.retain_graph)
         self.optimizer.step()
       pred = torch.argmax(outputs, 1)
 
