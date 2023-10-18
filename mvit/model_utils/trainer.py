@@ -74,7 +74,8 @@ class Trainer():
       inputs = inputs.to(self.device)
       labels = labels.to(self.device)
       datapoints_seen += inputs.shape[0]
-      self.optimizer.zero_grad()
+      if not self.retain_graph:
+        self.optimizer.zero_grad()
 
       with torch.set_grad_enabled(True):
         outputs = self.model(inputs)
