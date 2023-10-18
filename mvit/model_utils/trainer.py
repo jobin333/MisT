@@ -5,7 +5,7 @@ class Trainer():
   '''
   Super class implimenting basic training functionality
   '''
-  def __init__(self, cholec80_dataset_manager, device, retain_graph=False):
+  def __init__(self, cholec80_dataset_manager, device, retain_graph=False, train_step_callback=None):
     self.retain_graph=retain_graph
     self.device = device
     self.model_param_path = None
@@ -15,7 +15,7 @@ class Trainer():
     self.lr_scheduler = None
     self.model = None # Created by subclass
     self.dataset_video_count = len(self.cholec80_dataset_manager)
-
+    self.train_step_callback = train_step_callback # Execute after each train_step
     validation_video_count = int(self.dataset_video_count * 0.1 )
     self.validation_video_index = range(1, validation_video_count)
     self.training_video_index = range(validation_video_count, self.dataset_video_count+1)
@@ -90,7 +90,7 @@ class Trainer():
     average_loss = running_loss / datapoints_seen
     accuracy = accurate_classifications / datapoints_seen
     time_elapsed = time.time() - since
-
+    self.train_step_callback()
     return {'average_loss':average_loss, 'accuracy':accuracy, 'time_elapsed':time_elapsed}
 
 
