@@ -16,8 +16,8 @@ class VideoReader(torch.utils.data.Dataset):
                               image_shape=image_shape, sampling_factor=sampling_factor)
   cholec80_ds = video_reader.get_dataset()
   '''
-  def __init__(self, video_path, timestamp_path, tubelet_size, frame_skips, debugging=False,
-                aproximate_keyframe_interval = 10, enable_accurate_seek = False):
+  def __init__(self, video_path, timestamp_path, tubelet_size, frame_skips, enable_accurate_seek, debugging=False,
+                aproximate_keyframe_interval = 10):
     self.surgical_timestamp_df = pd.read_csv(timestamp_path, sep='\t').set_index('Frame')
     # self.surgical_phases = list(self.surgical_timestamp_df.Phase.unique())
     self.surgical_phases = ['Preparation', 'CalotTriangleDissection', 'ClippingCutting',
