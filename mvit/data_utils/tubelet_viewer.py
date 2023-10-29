@@ -44,6 +44,8 @@ class TubletDatasetViewer():
     tubelets, labels = next(iter(dataloader))
     boxes = []
     for tubelet, label in zip(tubelets, labels):
+      if len(tubelet.shape) == 5:
+         tubelet = tubelet[0]
       tubelet = tubelet.permute(0,2,3,1)
       # if i>=self.samples_count:
       #   break
