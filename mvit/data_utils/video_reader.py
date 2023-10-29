@@ -17,7 +17,7 @@ class VideoReader(torch.utils.data.Dataset):
   cholec80_ds = video_reader.get_dataset()
   '''
   def __init__(self, video_path, timestamp_path, tubelet_size, frame_skips, debugging=False,
-                aproximate_keyframe_interval = 10):
+                aproximate_keyframe_interval = 10, enable_accurate_seek = False):
     self.surgical_timestamp_df = pd.read_csv(timestamp_path, sep='\t').set_index('Frame')
     # self.surgical_phases = list(self.surgical_timestamp_df.Phase.unique())
     self.surgical_phases = ['Preparation', 'CalotTriangleDissection', 'ClippingCutting',
@@ -32,6 +32,7 @@ class VideoReader(torch.utils.data.Dataset):
     self.tubelet_size = tubelet_size
     self.aproximate_keyframe_interval = aproximate_keyframe_interval
     self.debugging = debugging
+    self.enable_accurate_seek = enable_accurate_seek
   def _time_to_timestamp_string(self, t):
     '''
     Convert floating point time to Cholec80 timestamp format.
@@ -85,6 +86,8 @@ class VideoReader(torch.utils.data.Dataset):
     ### If debugging is enabled, it will set the size of the dataloader to 1.
     if self.debugging:
       return 1
+    elif self.enable_accurate_seek:
+      return int(self.video_duration)
     else:
       return int(self.video_duration / self.aproximate_keyframe_interval)
 
@@ -94,5 +97,20 @@ class VideoReader(torch.utils.data.Dataset):
     The seek function is implemented for only key frames.
     So we are expecting the duration between two key frames is self.aproximate_keyframe_interval = 10 Seconds
     '''
-    self.reader.seek(i*self.aproximate_keyframe_interval, keyframes_only=True)
+    if self.enable_accurate_seek:
+      self.accurate_seek(i)
+    else:
+      self.reader.seek(i*self.aproximate_keyframe_interval, keyframes_only=True)
+
     return self._extract_frames_generator()
+
+
+
+  def accurate_seek(self, seek_location):
+    self.reader.seek(seek_location, keyframes_only=True)
+    max_seek = 25*20 ## fps * max_iner_key_frame_duration
+    for i in range(max_seek):
+      _, pts  = next(self.reader).values()
+      if pts == seek_location:
+        return
+    raise Exception('Unable to locate the timestamp')
