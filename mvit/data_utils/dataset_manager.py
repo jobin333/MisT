@@ -11,7 +11,9 @@ class Cholec80DatasetManager():
   '''
 
   def __init__(self, cholec80_dataset_location, 
-               tubelet_size, batch_size, frame_skips, debugging=False, shuffle=True, enable_video_reader_accurate_seek=False,):
+               tubelet_size, batch_size, frame_skips, debugging=False, shuffle=True,
+               aproximate_keyframe_interval=10,
+                 enable_video_reader_accurate_seek=False,):
     self.cholec80_dataset_location = cholec80_dataset_location
     self.tubelet_size = tubelet_size
     self.batch_size = batch_size
@@ -21,6 +23,7 @@ class Cholec80DatasetManager():
     self.frame_skips = frame_skips # Intra tubelet skips
     self.shuffle = shuffle
     self.enable_video_reader_accurate_seek = enable_video_reader_accurate_seek
+    self.aproximate_keyframe_interval = aproximate_keyframe_interval
 
   def __len__(self):
     return self.dataset_length
@@ -45,7 +48,7 @@ class Cholec80DatasetManager():
     videoreader = VideoReader(video_path=video_path, timestamp_path=timestamp_path,
                         tubelet_size=self.tubelet_size, 
                         enable_accurate_seek=self.enable_video_reader_accurate_seek,
-                        frame_skips=self.frame_skips, debugging=self.debugging)
+                        frame_skips=self.frame_skips, debugging=self.debugging, aproximate_keyframe_interval=self.aproximate_keyframe_interval)
     self.current_video_reader = videoreader  ## For debugging purpose
     dataloader = DataLoader(videoreader, batch_size=self.batch_size, shuffle=self.shuffle)
     return dataloader
