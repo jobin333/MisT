@@ -84,9 +84,9 @@ class ModelOutputDatasetManager():
               yield x.unsqueeze(0), y
 
         else:
-           dl = torch.utils.data.DataLoader(ds, batch_size=self.batch_size, shuffle=True)
-           return dl
-
+          dl = torch.utils.data.DataLoader(ds, batch_size=self.batch_size, shuffle=True)
+          for x, y in dl:
+              yield x, y
     def filename_to_dataset(self, filename):
         ds = torch.load(filename)
         return self.dataset_to_dataloader(ds)
