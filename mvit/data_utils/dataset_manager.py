@@ -58,13 +58,19 @@ class Cholec80DatasetManager():
 
 class ModelOutputDatasetManager():
     def __init__(self, file_location='./', train_split=0.8, file_index_start=1, 
-                 file_index_end=81,  filename_format='tensors_{}.pt'):
+                 file_index_end=81,  filename_format='tensors_{}.pt', batch_size=32,
+                  lstm_training=False):
         self.file_location = file_location
         self.filename_format = filename_format
         self.file_count = file_index_end - file_index_start
         max_train_index = int(train_split*self.file_count)
         self.train_file_nums = list(range(1, max_train_index))
         self.test_file_nums = list(range(max_train_index, self.file_count+1))
+        self.lstm_training = lstm_training 
+        self.batch_size = batch_size ## Batch_size for not sequential dataset
+        ### If lstm_training enabled, return sequential  unshuffled dataset with size
+        ### (sequence_size, batch_size, channels, tublet_size, width, height)
+        ### Else return shuffled data with (batch_size, channels, tublet_size, width, height)
         
     def file_number_to_filename(self, file_location, filename_format,  file_num):
         filename =  filename_format.format(file_num)
@@ -72,10 +78,15 @@ class ModelOutputDatasetManager():
         return datapath
     
     def dataset_to_dataloader(self, ds):
-        dl = torch.utils.data.DataLoader(ds, batch_size=1)
-        for x, y in dl:
-            yield x.unsqueeze(0), y
-    
+        if self.lstm_training:
+          dl = torch.utils.data.DataLoader(ds, batch_size=1)
+          for x, y in dl:
+              yield x.unsqueeze(0), y
+
+        else:
+           dl = torch.utils.data.DataLoader(ds, batch_size=self.batch_size, shuffle=True)
+           return dl
+
     def filename_to_dataset(self, filename):
         ds = torch.load(filename)
         return self.dataset_to_dataloader(ds)
