@@ -1,4 +1,5 @@
 from torchdata.datapipes.iter import FileLister, FileOpener
+import torch
 import os 
 from torch.utils.data import DataLoader
 from mvit.data_utils.video_reader import VideoReader
@@ -53,3 +54,50 @@ class Cholec80DatasetManager():
     self.current_video_reader = videoreader  ## For debugging purpose
     dataloader = DataLoader(videoreader, batch_size=self.batch_size, shuffle=self.shuffle)
     return dataloader
+  
+
+class ModelOutputDatasetManager():
+    def __init__(self, file_location='./', train_split=0.8, file_index_start=1, 
+                 file_index_end=81,  filename_format='tensors_{}.pt'):
+        self.file_location = file_location
+        self.filename_format = filename_format
+        self.file_count = file_index_end - file_index_start
+        max_train_index = int(train_split*self.file_count)
+        self.train_file_nums = list(range(1, max_train_index))
+        self.test_file_nums = list(range(max_train_index, self.file_count+1))
+        
+    def file_number_to_filename(self, file_location, filename_format,  file_num):
+        filename =  filename_format.format(file_num)
+        datapath = os.path.join(file_location, filename)
+        return datapath
+    
+    def dataset_to_dataloader(self, ds):
+        dl = torch.utils.data.DataLoader(ds, batch_size=1)
+        for x, y in dl:
+            yield x.unsqueeze(0), y
+    
+    def filename_to_dataset(self, filename):
+        ds = torch.load(filename)
+        return self.dataset_to_dataloader(ds)
+    
+    def get_dataloader(self, file_num):
+        filename = self.file_number_to_filename(self.file_location, self.filename_format, file_num)
+        return self.filename_to_dataset(filename)
+    
+    def get_train_dataloader(self):
+        file_num = self.train_file_nums.pop()
+        self.train_file_nums.insert(0,file_num)
+        filename = self.file_number_to_filename(self.file_location, self.filename_format, file_num)
+        dataloader = self.filename_to_dataloader(filename)
+        return dataloader
+        
+    def get_test_dataloader(self):
+        file_num = self.test_file_nums.pop()
+        self.test_file_nums.insert(0,file_num)
+        filename = self.file_number_to_filename(self.file_location, self.filename_format, file_num)
+        dataloader = self.filename_to_dataloader(filename)
+        return dataloader
+        
+    def __len__(self):
+        return self.file_count
+

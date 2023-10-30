@@ -10,6 +10,44 @@ Evalutaion function of trainer class not implemented in LSTMTrainer
 
 '''
 
+
+class SimpleLSTMClassifier(torch.nn.Module):
+    def __init__(self, device,detached_training, hidden_size=20, input_size=768, num_layers=1, output_size=7,
+                 batch_size=1):
+        super().__init__()
+        self.device = device
+        self.hidden_size = hidden_size
+        self.batch_size = batch_size
+        self.input_size = input_size
+        self.num_layers = num_layers
+        self.output_size = output_size
+        self.lstm = torch.nn.LSTM(self.input_size, self.hidden_size, num_layers)
+        self.linear = torch.nn.Linear(hidden_size, output_size)
+        self.detached_training = detached_training
+        self.clear_lstm_states()
+        if self.detached_training:
+            print('Model is working in detached mode')
+        
+        
+    def clear_lstm_states(self):
+        h0 = torch.zeros(self.num_layers, self.batch_size, self.hidden_size, device=self.device)
+        c0 = torch.zeros(self.num_layers, self.batch_size, self.hidden_size, device=self.device)
+        self.lstm_state = (h0, c0)
+
+    def forward(self, x):
+        x, (hn, cn) = self.lstm(x, self.lstm_state)
+        x = self.linear(x)
+        if self.detached_training:
+            self.lstm_state = (hn.detach(), cn.detach())
+        else:
+#             self.lstm_state = (hn, cn)
+            self.lstm_state[0].data = hn.data
+            self.lstm_state[1].data = cn.data
+        return x.squeeze(0)
+    
+
+
+
 class TubeletClassifierDrivenLSTM(torch.nn.Module):
   def __init__(self, classifier_backbone_model, classes, hidden_features, device):
     '''
