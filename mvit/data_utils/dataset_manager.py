@@ -59,7 +59,12 @@ class Cholec80DatasetManager():
 class ModelOutputDatasetManager():
     def __init__(self, file_location='./', train_split=0.8, file_index_start=1, 
                  file_index_end=81,  filename_format='tensors_{}.pt', batch_size=32,
-                  lstm_training=False):
+                  lstm_training=False, mapping_fn = None):
+        if mapping_fn is None:
+          self.mapping_fn = lambda x: x
+        else:
+          self.mapping_fn = mapping_fn
+          
         self.file_location = file_location
         self.filename_format = filename_format
         self.file_count = file_index_end - file_index_start
@@ -81,11 +86,13 @@ class ModelOutputDatasetManager():
         if self.lstm_training:
           dl = torch.utils.data.DataLoader(ds, batch_size=1)
           for x, y in dl:
+              x = self.mapping_fn(x)
               yield x.unsqueeze(0), y
 
         else:
           dl = torch.utils.data.DataLoader(ds, batch_size=self.batch_size, shuffle=True)
           for x, y in dl:
+              x = self.mapping_fn(x)
               yield x, y
     def filename_to_dataset(self, filename):
         ds = torch.load(filename)
