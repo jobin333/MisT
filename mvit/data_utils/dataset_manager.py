@@ -59,7 +59,7 @@ class Cholec80DatasetManager():
 class ModelOutputDatasetManager():
     def __init__(self, file_location='./', train_split=0.8, file_index_start=1, 
                  file_index_end=81,  filename_format='tensors_{}.pt', batch_size=32,
-                  lstm_training=False, mapping_fn = None):
+                  lstm_training=False, mapping_fn = None, shuffle=True):
         if mapping_fn is None:
           self.mapping_fn = lambda x: x
         else:
@@ -72,6 +72,7 @@ class ModelOutputDatasetManager():
         self.train_file_nums = list(range(1, max_train_index))
         self.test_file_nums = list(range(max_train_index, self.file_count+1))
         self.lstm_training = lstm_training 
+        self.shuffle = shuffle
         self.batch_size = batch_size ## Batch_size for not sequential dataset
         ### If lstm_training enabled, return sequential  unshuffled dataset with size
         ### (sequence_size, batch_size, channels, tublet_size, width, height)
@@ -90,7 +91,7 @@ class ModelOutputDatasetManager():
               yield x.unsqueeze(0), y
 
         else:
-          dl = torch.utils.data.DataLoader(ds, batch_size=self.batch_size, shuffle=True)
+          dl = torch.utils.data.DataLoader(ds, batch_size=self.batch_size, shuffle=self.shuffle)
           for x, y in dl:
               x = self.mapping_fn(x)
               yield x, y
