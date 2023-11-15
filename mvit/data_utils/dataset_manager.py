@@ -128,7 +128,7 @@ class ModelOutputDatasetManager():
         if self.seq_length is None:
           return self.dataset_to_dataloader(ds)
         else:
-           self.dataset_to_dataloader_sequential(ds)
+           return self.dataset_to_dataloader_sequential(ds)
     
     def get_dataloader(self, file_num):
         filename = self.file_number_to_filename(self.file_location, self.filename_format, file_num)
