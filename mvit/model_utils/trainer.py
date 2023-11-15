@@ -43,7 +43,7 @@ class Trainer():
     for inputs, labels in dataloader:
       inputs = inputs.to(self.device)
       labels = labels.to(self.device)
-      datapoints_seen += inputs.shape[0]
+      datapoints_seen += labels.shape[0]
 
       with torch.set_grad_enabled(False):
         outputs = self.model(inputs)
@@ -73,7 +73,7 @@ class Trainer():
     for inputs, labels in dataloader:
       inputs = inputs.to(self.device)
       labels = labels.to(self.device)
-      datapoints_seen += inputs.shape[0]
+      datapoints_seen += labels.shape[0]
       if not self.retain_graph:
         self.optimizer.zero_grad()
 
