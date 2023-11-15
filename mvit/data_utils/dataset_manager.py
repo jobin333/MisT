@@ -3,6 +3,7 @@ import torch
 import os 
 from torch.utils.data import DataLoader
 from mvit.data_utils.video_reader import VideoReader
+import random
 
 class Cholec80DatasetManager():
   '''
@@ -56,10 +57,28 @@ class Cholec80DatasetManager():
     return dataloader
   
 
+class SequentialDataset():
+    def __init__(self, dataset, seq_length):
+        self.dataset = dataset
+        self.dataset_length = len(dataset) - seq_length
+        self.seq_length = seq_length
+  
+    def __len__(self):
+        return self.dataset_length 
+  
+    def __getitem__(self, idx):
+        data_slice = self.dataset[idx:idx+self.seq_length]
+        x, y = zip(*data_slice)
+        x = torch.stack(x)
+        y = torch.stack(y)
+        y = y[self.seq_length // 2]
+        return x, y
+
+
 class ModelOutputDatasetManager():
     def __init__(self, file_location='./', train_split=0.8, file_index_start=1, 
                  file_index_end=81,  filename_format='tensors_{}.pt', batch_size=32,
-                  lstm_training=False, mapping_fn = None, shuffle=True):
+                  lstm_training=False, mapping_fn = None, shuffle=True, seq_length=None):
         if mapping_fn is None:
           self.mapping_fn = lambda x: x
         else:
@@ -77,7 +96,7 @@ class ModelOutputDatasetManager():
         ### If lstm_training enabled, return sequential  unshuffled dataset with size
         ### (sequence_size, batch_size, channels, tublet_size, width, height)
         ### Else return shuffled data with (batch_size, channels, tublet_size, width, height)
-        
+        self.seq_length = seq_length ## If it is not None, get_dataloader output sequential dataset for transformer training
     def file_number_to_filename(self, file_location, filename_format,  file_num):
         filename =  filename_format.format(file_num)
         datapath = os.path.join(file_location, filename)
@@ -95,9 +114,21 @@ class ModelOutputDatasetManager():
           for x, y in dl:
               x = self.mapping_fn(x)
               yield x, y
+
+
+    def dataset_to_dataloader_sequential(self, ds):
+        seq_ds = SequentialDataset(ds, 10)
+        dl = DataLoader(seq_ds, batch_size=self.batch_size, shuffle=True)
+        for x,y in dl:
+            x = x.permute(1,0,2)
+            yield x, y
+
     def filename_to_dataset(self, filename):
         ds = torch.load(filename)
-        return self.dataset_to_dataloader(ds)
+        if self.seq_length is None:
+          return self.dataset_to_dataloader(ds)
+        else:
+           self.dataset_to_dataloader_sequential(ds)
     
     def get_dataloader(self, file_num):
         filename = self.file_number_to_filename(self.file_location, self.filename_format, file_num)
