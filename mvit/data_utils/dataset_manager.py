@@ -117,7 +117,7 @@ class ModelOutputDatasetManager():
 
 
     def dataset_to_dataloader_sequential(self, ds):
-        seq_ds = SequentialDataset(ds, 10)
+        seq_ds = SequentialDataset(ds, self.seq_length)
         dl = DataLoader(seq_ds, batch_size=self.batch_size, shuffle=True)
         for x,y in dl:
             x = x.permute(1,0,2)
