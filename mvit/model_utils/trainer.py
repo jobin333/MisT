@@ -26,6 +26,21 @@ class Trainer():
     '''
     torch.save(self.model.state_dict(), self.model_param_path)
 
+  def save_model_outs(self, dataloader, filename):
+    '''
+    Saving model output
+    '''
+    data = []
+    self.model.eval()
+    for video_index in self.training_video_index:
+      dataloader = self.cholec80_dataset_manager.get_dataloader(video_index)      
+      for x,y in dataloader:
+        x = x.to(self.device)
+        feature_x = self.model(x)
+        for item in zip(feature_x, y):
+            data.append(item)
+      torch.save(data, filename)
+
   def make_scheduler_step(self):
     if self.lr_scheduler is not None:
       self.lr_scheduler.step()
