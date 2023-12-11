@@ -27,6 +27,9 @@ class Trainer():
     torch.save(self.model.state_dict(), self.model_param_path)
 
   def load_model(self):
+    '''
+    For loading models parameters
+    '''
     pass
 
   def save_model_outs(self, dataloader, filename):
