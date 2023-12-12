@@ -6,7 +6,7 @@ class Trainer():
   '''
   Super class implimenting basic training functionality
   '''
-  def __init__(self, cholec80_dataset_manager, device, create_model_fn=None, 
+  def __init__(self, dataset_manager, device, create_model_fn=None, 
                 model_creation_params=None, model_outs_save_location = None,  retain_graph=False,
                 train_step_callback=None, model=None, enable_training=True,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
@@ -15,13 +15,13 @@ class Trainer():
     self.retain_graph=retain_graph
     self.device = device
     self.save_model_param_path = save_model_param_path
-    self.cholec80_dataset_manager = cholec80_dataset_manager
+    self.dataset_manager = dataset_manager
     self.loss_fn = loss_fn
     self.model = model if model is not None else create_model_fn(*model_creation_params)
     if enable_training:
       self.optimizer = self.get_optimizer(optimizer_fn, optimizer_params)
     self.lr_scheduler = lr_scheduler
-    self.dataset_video_count = len(self.cholec80_dataset_manager)
+    self.dataset_video_count = len(self.dataset_manager)
     self.train_step_callback = train_step_callback # Execute after each train_step
     validation_video_count = int(self.dataset_video_count * 0.1 )
     self.validation_video_index = range(1, validation_video_count)
@@ -58,7 +58,7 @@ class Trainer():
     data = []
     self.model.eval()
     for video_index in self.training_video_index:
-      dataloader = self.cholec80_dataset_manager.get_dataloader(video_index)      
+      dataloader = self.dataset_manager.get_dataloader(video_index)      
       for x,y in dataloader:
         x = x.to(self.device)
         feature_x = self.model(x)
@@ -142,7 +142,7 @@ class Trainer():
     accuracy_list = []
     time_list = []
     for i, video_index in enumerate(self.training_video_index):
-      dataloader = self.cholec80_dataset_manager.get_dataloader(video_index)
+      dataloader = self.dataset_manager.get_dataloader(video_index)
       statistics = self._train_step(dataloader)
       accuracy = statistics['accuracy']
       loss = statistics['average_loss']
@@ -173,7 +173,7 @@ class Trainer():
     loss_list = []
     time_list = []
     for i, video_index in enumerate(self.validation_video_index):
-      dataloader = self.cholec80_dataset_manager.get_dataloader(video_index)
+      dataloader = self.dataset_manager.get_dataloader(video_index)
       statistics = self.eval_step(dataloader)
       accuracy = statistics['accuracy']
       loss = statistics['average_loss']
