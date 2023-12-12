@@ -201,8 +201,8 @@ class Trainer():
   def _save_model_outs_of_dataloader(self, dataloader, filename):
     data = []
     self.model = self.model.eval()
-    for i, (x,y) in enumerate(dataloader):
-      feature_x = feature_x.to(self.device)
+    for x,y in dataloader:
+      x = x.to(self.device)
       y = y.to(self.device)
       feature_x = self.model(x)
       for item in zip(feature_x, y):
