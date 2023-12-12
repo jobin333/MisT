@@ -17,9 +17,9 @@ class Trainer():
     self.save_model_param_path = save_model_param_path
     self.cholec80_dataset_manager = cholec80_dataset_manager
     self.loss_fn = loss_fn
+    self.model = model if model is not None else create_model_fn(*model_creation_params)
     self.optimizer = self.get_optimizer(optimizer_fn, *optimizer_params)
     self.lr_scheduler = lr_scheduler
-    self.model = model if model is not None else create_model_fn(*model_creation_params)
     self.dataset_video_count = len(self.cholec80_dataset_manager)
     self.train_step_callback = train_step_callback # Execute after each train_step
     validation_video_count = int(self.dataset_video_count * 0.1 )
