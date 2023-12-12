@@ -18,7 +18,7 @@ class Trainer():
     self.cholec80_dataset_manager = cholec80_dataset_manager
     self.loss_fn = loss_fn
     self.model = model if model is not None else create_model_fn(*model_creation_params)
-    self.optimizer = self.get_optimizer(optimizer_fn, *optimizer_params)
+    self.optimizer = self.get_optimizer(optimizer_fn, optimizer_params)
     self.lr_scheduler = lr_scheduler
     self.dataset_video_count = len(self.cholec80_dataset_manager)
     self.train_step_callback = train_step_callback # Execute after each train_step
@@ -33,7 +33,7 @@ class Trainer():
     for param in self.model.parameters():
       if param.requires_grad:
         trainable_params.append(param)
-    return optimizer_fn(trainable_params, *optimizer_params)
+    return optimizer_fn(trainable_params, **optimizer_params)
 
   def save_model(self):
     '''
