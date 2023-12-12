@@ -1,36 +1,54 @@
 import torch
 import time
+import os
 
 class Trainer():
   '''
   Super class implimenting basic training functionality
   '''
-  def __init__(self, cholec80_dataset_manager, device, retain_graph=False, train_step_callback=None):
+  def __init__(self, cholec80_dataset_manager, device, create_model_fn=None, 
+                model_creation_params=None, model_outs_save_location = None,  retain_graph=False,
+                train_step_callback=None, model=None, 
+               save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
+               lr_scheduler=None, optimizer_fn=torch.optim.Adam, 
+               optimizer_params={'lr':0.001}):
     self.retain_graph=retain_graph
     self.device = device
-    self.model_param_path = None
+    self.save_model_param_path = save_model_param_path
     self.cholec80_dataset_manager = cholec80_dataset_manager
-    self.loss_fn = torch.nn.CrossEntropyLoss()
-    self.optimizer = None
-    self.lr_scheduler = None
-    self.model = None # Created by subclass
+    self.loss_fn = loss_fn
+    self.optimizer = self.get_optimizer(optimizer_fn, *optimizer_params)
+    self.lr_scheduler = lr_scheduler
+    self.model = model if model is not None else create_model_fn(*model_creation_params)
     self.dataset_video_count = len(self.cholec80_dataset_manager)
     self.train_step_callback = train_step_callback # Execute after each train_step
     validation_video_count = int(self.dataset_video_count * 0.1 )
     self.validation_video_index = range(1, validation_video_count)
     self.training_video_index = range(validation_video_count, self.dataset_video_count+1)
+    self.model_outs_save_location = model_outs_save_location
+
+  
+  def get_optimizer(self, optimizer_fn, optimizer_params):
+    trainable_params = []
+    for param in self.model.parameters():
+      if param.requires_grad:
+        trainable_params.append(param)
+    return optimizer_fn(trainable_params, *optimizer_params)
 
   def save_model(self):
     '''
-    Saving model parameters in self.model_param_path
+    Saving model parameters in self.save_model_param_path
     '''
-    torch.save(self.model.state_dict(), self.model_param_path)
+    print('Saving Model to {}'.format(self.save_model_param_path))
+    torch.save(self.model.state_dict(), self.save_model_param_path)
 
   def load_model(self):
     '''
     For loading models parameters
     '''
-    pass
+    if os.path.exist(self.save_model_param_path):
+      print('Loading model from {}'.format(self.save_model_param_path))
+      self.model.load_state_dict(torch.load(self.save_model_param_path))
 
   def save_model_outs(self, dataloader, filename):
     '''
@@ -79,7 +97,7 @@ class Trainer():
     return {'average_loss':average_loss, 'accuracy':accuracy, 'time_elapsed':time_elapsed}
 
 
-  def train_step(self, dataloader):
+  def _train_step(self, dataloader):
     '''
     It will train a single dataset a single epoch
     Returning Average Loss, Accuracy and Time taken for execution
@@ -115,7 +133,7 @@ class Trainer():
     return {'average_loss':average_loss, 'accuracy':accuracy, 'time_elapsed':time_elapsed}
 
 
-  def train_stage(self, param_save_per_epochs, summary_only, run_evaluation):
+  def _train_stage(self, param_save_per_epochs, summary_only, run_evaluation):
     '''
     Function to train entire dataset one epoch
     '''
@@ -124,7 +142,7 @@ class Trainer():
     time_list = []
     for i, video_index in enumerate(self.training_video_index):
       dataloader = self.cholec80_dataset_manager.get_dataloader(video_index)
-      statistics = self.train_step(dataloader)
+      statistics = self._train_step(dataloader)
       accuracy = statistics['accuracy']
       loss = statistics['average_loss']
       time_elapsed = statistics['time_elapsed']
@@ -176,4 +194,24 @@ class Trainer():
   def train_model(self, epochs, summary_only=True, run_evaluation=False):
     for i in range(1, epochs+1):
       print('Training Epoch: {}'.format(i), end=' ')
-      self.train_stage(param_save_per_epochs=5, summary_only=summary_only, run_evaluation=run_evaluation)
+      self._train_stage(param_save_per_epochs=5, summary_only=summary_only, run_evaluation=run_evaluation)
+
+
+  def _save_model_outs_of_dataloader(self, dataloader, filename):
+    data = []
+    self.model = self.model.eval()
+    for i, (x,y) in enumerate(dataloader):
+      feature_x = self.model(x)
+      for item in zip(feature_x, y):
+          data.append(item)
+    torch.save(data, filename)
+
+  def save_model_outs_of_dataset_manager(self):
+      if not os.path.exists(self.model_outs_save_location):
+          os.makedirs(self.model_outs_save_location)
+
+      for i in range(1,81):
+          model_out_path = os.path.join(self.model_outs_save_location, 'tensors_{}.pt'.format(i))
+          data_loader = self.dataset_manager.get_dataloader(i)
+          print('Creating {}'.format(model_out_path))
+          self._save_model_outs_of_dataloader(data_loader, model_out_path)

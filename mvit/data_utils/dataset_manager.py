@@ -76,7 +76,7 @@ class SequentialDataset():
 
 
 class ModelOutputDatasetManager():
-    def __init__(self, file_location='./', train_split=0.8, file_index_start=1, 
+    def __init__(self, file_location, train_split=0.8, file_index_start=1, 
                  file_index_end=81,  filename_format='tensors_{}.pt', batch_size=32,
                   lstm_training=False, mapping_fn = None, shuffle=True, seq_length=None):
         if mapping_fn is None:
