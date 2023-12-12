@@ -8,7 +8,7 @@ class Trainer():
   '''
   def __init__(self, cholec80_dataset_manager, device, create_model_fn=None, 
                 model_creation_params=None, model_outs_save_location = None,  retain_graph=False,
-                train_step_callback=None, model=None, 
+                train_step_callback=None, model=None, enable_training=True,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, 
                optimizer_params={'lr':0.001}):
@@ -18,7 +18,8 @@ class Trainer():
     self.cholec80_dataset_manager = cholec80_dataset_manager
     self.loss_fn = loss_fn
     self.model = model if model is not None else create_model_fn(*model_creation_params)
-    self.optimizer = self.get_optimizer(optimizer_fn, optimizer_params)
+    if enable_training:
+      self.optimizer = self.get_optimizer(optimizer_fn, optimizer_params)
     self.lr_scheduler = lr_scheduler
     self.dataset_video_count = len(self.cholec80_dataset_manager)
     self.train_step_callback = train_step_callback # Execute after each train_step
