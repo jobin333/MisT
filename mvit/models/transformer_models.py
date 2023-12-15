@@ -2,7 +2,7 @@ import math
 
 from torch import nn, Tensor
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
-from mvit.data_utils.positional_encoding import PositionalEncoding
+from mvit.model_utils.positional_encoding import PositionalEncoding
 
 class TransformerModel(nn.Module):
 
