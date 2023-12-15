@@ -37,7 +37,9 @@ class TransformerModel(nn.Module):
             Unmasked positions are filled with float(0.0).
             """
             src_mask = nn.Transformer.generate_square_subsequent_mask(len(src)).to(self.device)
-        if self.enable_src_mask:
-            output = self.transformer_encoder(src, src_mask)
+        else:
+            src_mask = None
+        
+        output = self.transformer_encoder(src, src_mask)
         output = self.linear(output)
         return output
