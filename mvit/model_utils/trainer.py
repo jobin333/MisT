@@ -17,7 +17,8 @@ class Trainer():
     self.save_model_param_path = save_model_param_path
     self.dataset_manager = dataset_manager
     self.loss_fn = loss_fn
-    self.model = model if model is not None else create_model_fn(*model_creation_params)
+    model = model if model is not None else create_model_fn(*model_creation_params)
+    self.model = model.to(device)
     if enable_training:
       self.optimizer = self.get_optimizer(optimizer_fn, optimizer_params)
     self.lr_scheduler = lr_scheduler
