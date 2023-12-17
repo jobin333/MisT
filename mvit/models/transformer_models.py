@@ -13,7 +13,7 @@ class TransformerModel(nn.Module):
         self.model_type = 'Transformer'
         if enable_positional_encoding:
             self.pos_encoder = PositionalEncoding(input_features, dropout)
-        encoder_layers = TransformerEncoderLayer(input_features, nhead, d_hid, dropout)
+        encoder_layers = TransformerEncoderLayer(output_features, nhead, d_hid, dropout)
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.linear = nn.Linear(input_features, output_features)
         self.device = device
