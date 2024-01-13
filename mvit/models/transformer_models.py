@@ -44,6 +44,6 @@ class TransformerModel(nn.Module):
 
         output = output.permute(1,0,2)
         batch_size = output.shape[0]
-        output = output.resize(batch_size, -1)
+        output.resize_(batch_size, -1)
         output = self.linear(output)
         return output
