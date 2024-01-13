@@ -194,10 +194,10 @@ class Trainer():
     print('Evaluation Summary;  Average Accuracy: {:.2f}; Average Loss: {:.2f}; Execution Time {:.2f}'.format(average_evaluation_accuracy, average_evaluation_loss, total_time_taken))
 
 
-  def train_model(self, epochs, summary_only=True, run_evaluation=False):
+  def train_model(self, epochs, param_save_per_epochs=5, summary_only=True, run_evaluation=False):
     for i in range(1, epochs+1):
       print('Training Epoch: {}'.format(i), end=' ')
-      self._train_stage(param_save_per_epochs=5, summary_only=summary_only, run_evaluation=run_evaluation)
+      self._train_stage(param_save_per_epochs=param_save_per_epochs, summary_only=summary_only, run_evaluation=run_evaluation)
 
 
   def _save_model_outs_of_dataloader(self, dataloader, filename):
