@@ -131,7 +131,8 @@ class Trainer():
     average_loss = running_loss / datapoints_seen
     accuracy = accurate_classifications / datapoints_seen
     time_elapsed = time.time() - since
-    self.train_step_callback()
+    if self.train_step_callback is not None:
+      self.train_step_callback()
     return {'average_loss':average_loss, 'accuracy':accuracy, 'time_elapsed':time_elapsed}
 
 
