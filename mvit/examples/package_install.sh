@@ -1,0 +1,1 @@
+pip install --force-reinstall git+https://jobin333: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@github.com/jobin333/mvit.git@trainer
