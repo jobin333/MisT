@@ -6,6 +6,11 @@ from mvit.model_utils.positional_encoding import PositionalEncoding
 
 class TransformerModel(nn.Module):
 
+    '''
+        Note:
+            Mandatory property of dataset: batch_first = True
+    '''
+
     def __init__(self, input_features: int, output_features:int, nhead: int, d_hid: int,
                  nlayers: int, device, seq_length:int,  dropout: float = 0.5,
                  enable_positional_encoding=True, enable_src_mask=True):
@@ -16,6 +21,7 @@ class TransformerModel(nn.Module):
             self.pos_encoder = PositionalEncoding(input_features, dropout)
         encoder_layers = TransformerEncoderLayer(input_features, nhead, d_hid, dropout)
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
+        self.flatten = nn.Flatten()
         self.linear = nn.Linear(input_features*seq_length, output_features)
         self.device = device
         self.enable_positional_encoding = enable_positional_encoding
@@ -42,8 +48,6 @@ class TransformerModel(nn.Module):
         else:
             output = self.transformer_encoder(src)
 
-        output = output.permute(1,0,2)
-        batch_size = output.shape[0]
-        output.resize_(batch_size, -1)
+        output = self.flatten(output)
         output = self.linear(output)
         return output

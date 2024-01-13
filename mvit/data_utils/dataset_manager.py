@@ -76,9 +76,12 @@ class SequentialDataset():
 
 
 class ModelOutputDatasetManager():
+    '''
+    Make batch_first to True for using transformer model written with this package
+    '''
     def __init__(self, file_location, train_split=0.8, file_index_start=1, 
                  file_index_end=81,  filename_format='tensors_{}.pt', batch_size=32,
-                  lstm_training=False, mapping_fn = None, shuffle=True, seq_length=None):
+                  lstm_training=False, mapping_fn = None, shuffle=True, seq_length=None, batch_first=True):
         if mapping_fn is None:
           self.mapping_fn = lambda x: x
         else:
@@ -92,6 +95,7 @@ class ModelOutputDatasetManager():
         self.test_file_nums = list(range(max_train_index, self.file_count+1))
         self.lstm_training = lstm_training 
         self.shuffle = shuffle
+        self.batch_first = batch_first
         self.batch_size = batch_size ## Batch_size for not sequential dataset
         ### If lstm_training enabled, return sequential  unshuffled dataset with size
         ### (sequence_size, batch_size, channels, tublet_size, width, height)
@@ -119,9 +123,14 @@ class ModelOutputDatasetManager():
     def dataset_to_dataloader_sequential(self, ds):
         seq_ds = SequentialDataset(ds, self.seq_length)
         dl = DataLoader(seq_ds, batch_size=self.batch_size, shuffle=True)
-        for x,y in dl:
-            x = x.permute(1,0,2)
-            yield x, y
+        if not self.batch_first:
+          for x,y in dl:
+              x = x.permute(1,0,2)
+              yield x, y
+
+        if  self.batch_first:
+          for x,y in dl:
+              yield x, y
 
     def filename_to_dataset(self, filename):
         ds = torch.load(filename)
