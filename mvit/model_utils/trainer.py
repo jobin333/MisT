@@ -148,7 +148,7 @@ class Trainer():
     '''
     Function to train entire dataset one epoch
     '''
-    module_logger.info('Running single epoch')
+    module_logger.info('Started an epoch')
 
     loss_list = []
     accuracy_list = []
@@ -180,7 +180,7 @@ class Trainer():
     '''
     Function to evaluate model performance
     '''
-    module_logger.info('Start evaluating model')
+    module_logger.info('Started evaluating model')
     print('Starting Evaluating model', end=' ')
     accuracy_list = []
     loss_list = []
