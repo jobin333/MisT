@@ -202,7 +202,7 @@ class Trainer():
     average_evaluation_accuracy = sum(accuracy_list) / len(accuracy_list)
     total_time_taken = sum(time_list)
     print('')
-    print('Evaluation Summary;  Average Accuracy: {:.2f}; Average Loss: {:.2f}; Execution Time {:.2f}'.format(average_evaluation_accuracy, average_evaluation_loss, total_time_taken))
+    print('Evaluation Summary;  Average Accuracy: {:.2f}; Average Loss: {:.6f}; Execution Time {:.2f}'.format(average_evaluation_accuracy, average_evaluation_loss, total_time_taken))
 
 
   def train_model(self, epochs, param_save_per_epochs=5, summary_only=True, run_evaluation=False):
