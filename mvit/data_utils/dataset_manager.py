@@ -93,10 +93,10 @@ class ModelOutputDatasetManager():
         self.filename_format = filename_format
         self.file_count = file_index_end - file_index_start
         max_train_index = int(train_split*self.file_count)
+        ## training_file_number and test_file_number are not using
+        ## It will removed in future
         self.train_file_nums = list(range(1, max_train_index))
-        module_logger.debug('Train File Nums: {}'.format(self.train_file_nums))
         self.test_file_nums = list(range(max_train_index, self.file_count+1))
-        module_logger.debug('Test File Nums: {}'.format(self.test_file_nums))
         self.lstm_training = lstm_training 
         self.shuffle = shuffle
         self.batch_first = batch_first

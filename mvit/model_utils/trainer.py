@@ -2,6 +2,9 @@ import torch
 import time
 import os
 
+from mvit.logging_utils.logger import logger
+module_logger = logger.getChild(__name__)
+
 class Trainer():
   '''
   Super class implimenting basic training functionality
@@ -12,6 +15,7 @@ class Trainer():
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, 
                optimizer_params={'lr':0.001}):
+    module_logger.info('Trainer Initializing')
     self.retain_graph=retain_graph
     self.device = device
     self.save_model_param_path = save_model_param_path
@@ -31,6 +35,7 @@ class Trainer():
 
   
   def get_optimizer(self, optimizer_fn, optimizer_params):
+    module_logger.debug('Using optimizer {}'.format(optimizer_fn))
     trainable_params = []
     for param in self.model.parameters():
       if param.requires_grad:
@@ -41,6 +46,7 @@ class Trainer():
     '''
     Saving model parameters in self.save_model_param_path
     '''
+    module_logger.info('Saving model')
     print('Saving Model to {}'.format(self.save_model_param_path))
     torch.save(self.model.state_dict(), self.save_model_param_path)
 
@@ -48,6 +54,7 @@ class Trainer():
     '''
     For loading models parameters
     '''
+    module_logger.info('Loading model')
     if os.path.exist(self.save_model_param_path):
       print('Loading model from {}'.format(self.save_model_param_path))
       self.model.load_state_dict(torch.load(self.save_model_param_path))
@@ -56,6 +63,7 @@ class Trainer():
     '''
     Saving model output
     '''
+    module_logger.info('Saving model output')
     data = []
     self.model.eval()
     for video_index in self.training_video_index:
@@ -75,7 +83,7 @@ class Trainer():
     '''
     Used for evaluation time. During this time the gradients are disabled.
     '''
-
+    module_logger.info('Evaluating module performance')
     self.model.eval()
     running_loss = 0.0
     accurate_classifications = 0
@@ -140,6 +148,8 @@ class Trainer():
     '''
     Function to train entire dataset one epoch
     '''
+    module_logger.info('Running single epoch')
+
     loss_list = []
     accuracy_list = []
     time_list = []
@@ -170,6 +180,7 @@ class Trainer():
     '''
     Function to evaluate model performance
     '''
+    module_logger.info('Start evaluating model')
     print('Starting Evaluating model', end=' ')
     accuracy_list = []
     loss_list = []
@@ -201,6 +212,7 @@ class Trainer():
 
 
   def _save_model_outs_of_dataloader(self, dataloader, filename):
+    module_logger.info('Saving model output of dataloader {}'.format(filename))
     data = []
     self.model = self.model.eval()
     for x,y in dataloader:
