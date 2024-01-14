@@ -3,8 +3,10 @@ import torch
 import os 
 from torch.utils.data import DataLoader
 from mvit.data_utils.video_reader import VideoReader
+from mvit.logging_utils.logger import logger
 import random
 
+module_logger = logger.getChild(__name__)
 class Cholec80DatasetManager():
   '''
   ####### Example
@@ -92,7 +94,9 @@ class ModelOutputDatasetManager():
         self.file_count = file_index_end - file_index_start
         max_train_index = int(train_split*self.file_count)
         self.train_file_nums = list(range(1, max_train_index))
+        module_logger.debug('Train File Nums: {}'.format(self.train_file_nums))
         self.test_file_nums = list(range(max_train_index, self.file_count+1))
+        module_logger.debug('Test File Nums: {}'.format(self.test_file_nums))
         self.lstm_training = lstm_training 
         self.shuffle = shuffle
         self.batch_first = batch_first
@@ -133,6 +137,7 @@ class ModelOutputDatasetManager():
               yield x, y
 
     def filename_to_dataset(self, filename):
+        module_logger.debug('Generating dataset for file {}'.format(filename))
         ds = torch.load(filename)
         if self.seq_length is None:
           return self.dataset_to_dataloader(ds)
