@@ -62,7 +62,7 @@ class Cholec80DatasetManager():
 class SequentialDataset():
     def __init__(self, dataset, seq_length):
         self.dataset = dataset
-        self.dataset_length = len(dataset) - seq_length
+        self.dataset_length = len(dataset) - seq_length - 1 # 1 For safty 
         self.seq_length = seq_length
   
     def __len__(self):
@@ -126,7 +126,7 @@ class ModelOutputDatasetManager():
 
     def dataset_to_dataloader_sequential(self, ds):
         seq_ds = SequentialDataset(ds, self.seq_length)
-        dl = DataLoader(seq_ds, batch_size=self.batch_size, shuffle=True, drop_last=True)
+        dl = DataLoader(seq_ds, batch_size=self.batch_size, shuffle=True, drop_last=False)
         if not self.batch_first:
           for x,y in dl:
               x = x.permute(1,0,2)
