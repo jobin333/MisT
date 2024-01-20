@@ -55,7 +55,7 @@ class Trainer():
     For loading models parameters
     '''
     module_logger.info('Loading model')
-    if os.path.exist(self.save_model_param_path):
+    if os.path.exists(self.save_model_param_path):
       print('Loading model from {}'.format(self.save_model_param_path))
       self.model.load_state_dict(torch.load(self.save_model_param_path))
 
