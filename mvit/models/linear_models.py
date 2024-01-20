@@ -14,9 +14,9 @@ class LinearModel(torch.nn.Module):
 
 
 class SimpleLinearModel(torch.nn.Module):
-    def __init__(self, in_features=768, out_features=7):
+    def __init__(self, in_features=768, out_features=7, seq_length=30):
         super().__init__()
-        self.linear = torch.nn.Linear(in_features=in_features, out_features=out_features)
+        self.linear = torch.nn.Linear(in_features=in_features*seq_length, out_features=out_features)
         self.flatten = torch.nn.Flatten()
 
     def forward(self, x):
