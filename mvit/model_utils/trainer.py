@@ -14,7 +14,7 @@ class Trainer():
                 train_step_callback=None, model=None, enable_training=True,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, 
-               optimizer_params={'lr':0.001}):
+               optimizer_params={'lr':0.001}, save_during_training=False):
     module_logger.info('Trainer Initializing')
     self.retain_graph=retain_graph
     self.device = device
@@ -32,6 +32,7 @@ class Trainer():
     self.validation_video_index = range(1, validation_video_count)
     self.training_video_index = range(validation_video_count, self.dataset_video_count+1)
     self.model_outs_save_location = model_outs_save_location
+    self.save_during_training = save_during_training
 
   
   def get_optimizer(self, optimizer_fn, optimizer_params):
@@ -166,8 +167,10 @@ class Trainer():
         print('.', end='')
       else:
         print('    Trained Video No: {};  Accuracy: {:.2f}; Loss: {:.6f}'.format(video_index, accuracy, loss))
-      if (i+1) % int(self.dataset_video_count / param_save_per_epochs) == 0:
-        self.save_model()
+      ## For saving while training
+      if self.save_during_training:
+        if (i+1) % int(self.dataset_video_count / param_save_per_epochs) == 0:
+         self.save_model()
     average_training_loss = sum(loss_list) / len(loss_list)
     average_training_accuracy = sum(accuracy_list) / len(accuracy_list)
     time_taken = sum(time_list)
