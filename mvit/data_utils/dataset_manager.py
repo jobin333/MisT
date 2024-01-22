@@ -115,12 +115,16 @@ class ModelOutputDatasetManager():
         if self.lstm_training:
           dl = torch.utils.data.DataLoader(ds, batch_size=1)
           for x, y in dl:
+              x.requires_grad = False
+              y.requires_grad = False
               x = self.mapping_fn(x)
               yield x.unsqueeze(0), y
 
         else:
           dl = torch.utils.data.DataLoader(ds, batch_size=self.batch_size, shuffle=self.shuffle)
           for x, y in dl:
+              x.requires_grad = False
+              y.requires_grad = False
               x = self.mapping_fn(x)
               yield x, y
 
@@ -130,11 +134,15 @@ class ModelOutputDatasetManager():
         dl = DataLoader(seq_ds, batch_size=self.batch_size, shuffle=True, drop_last=False)
         if not self.batch_first:
           for x,y in dl:
+              x.requires_grad = False
+              y.requires_grad = False
               x = x.permute(1,0,2)
               yield x, y
 
         if  self.batch_first:
           for x,y in dl:
+              x.requires_grad = False
+              y.requires_grad = False
               yield x, y
 
     def filename_to_dataset(self, filename):
