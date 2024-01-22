@@ -99,6 +99,7 @@ class ModelOutputDatasetManager():
         self.test_file_nums = list(range(max_train_index, self.file_count+1))
         self.lstm_training = lstm_training 
         self.shuffle = shuffle
+        self.device = device
         self.batch_first = batch_first
         self.batch_size = batch_size ## Batch_size for not sequential dataset
         ### If lstm_training enabled, return sequential  unshuffled dataset with size
