@@ -81,7 +81,7 @@ class ModelOutputDatasetManager():
     '''
     Make batch_first to True for using transformer model written with this package
     '''
-    def __init__(self, file_location, train_split=0.9, file_index_start=1, 
+    def __init__(self, file_location, train_split=0.9, file_index_start=1, single_batch=False,
                  file_index_end=81,  filename_format='tensors_{}.pt', batch_size=32, device=None,
                   lstm_training=False, mapping_fn = None, shuffle=True, seq_length=None, batch_first=True,):
         if mapping_fn is None:
@@ -101,6 +101,7 @@ class ModelOutputDatasetManager():
         self.shuffle = shuffle
         self.device = device
         self.batch_first = batch_first
+        self.single_batch = single_batch ##### Obtain entair dataset once. No batches
         self.batch_size = batch_size ## Batch_size for not sequential dataset
         ### If lstm_training enabled, return sequential  unshuffled dataset with size
         ### (sequence_size, batch_size, channels, tublet_size, width, height)
@@ -111,7 +112,7 @@ class ModelOutputDatasetManager():
         datapath = os.path.join(file_location, filename)
         return datapath
     
-    def dataset_to_dataloader(self, ds, full_dataset=False):
+    def dataset_to_dataloader(self, ds):
         if self.lstm_training:
           dl = torch.utils.data.DataLoader(ds, batch_size=1)
           for x, y in dl:
@@ -122,7 +123,7 @@ class ModelOutputDatasetManager():
 
         else:
           batch_size=self.batch_size
-          if full_dataset:
+          if self.single_batch:
              batch_size = len(ds)
           dl = torch.utils.data.DataLoader(ds, batch_size=batch_size, shuffle=self.shuffle)
           for x, y in dl:
