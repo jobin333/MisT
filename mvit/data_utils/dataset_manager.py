@@ -111,7 +111,7 @@ class ModelOutputDatasetManager():
         datapath = os.path.join(file_location, filename)
         return datapath
     
-    def dataset_to_dataloader(self, ds):
+    def dataset_to_dataloader(self, ds, full_dataset=False):
         if self.lstm_training:
           dl = torch.utils.data.DataLoader(ds, batch_size=1)
           for x, y in dl:
@@ -121,7 +121,10 @@ class ModelOutputDatasetManager():
               yield x.unsqueeze(0), y
 
         else:
-          dl = torch.utils.data.DataLoader(ds, batch_size=self.batch_size, shuffle=self.shuffle)
+          batch_size=self.batch_size
+          if full_dataset:
+             batch_size = len(ds)
+          dl = torch.utils.data.DataLoader(ds, batch_size=batch_size, shuffle=self.shuffle)
           for x, y in dl:
               x = x.detach()
               y = y.detach()
