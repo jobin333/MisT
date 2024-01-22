@@ -165,3 +165,6 @@ class ModelOutputDatasetManager():
     def __len__(self):
         return self.file_count
 
+
+    def __getitem__(self, index):
+       return self.get_dataloader(index)
