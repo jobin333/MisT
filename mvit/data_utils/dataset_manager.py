@@ -81,7 +81,7 @@ class ModelOutputDatasetManager():
     '''
     Make batch_first to True for using transformer model written with this package
     '''
-    def __init__(self, file_location, train_split=0.8, file_index_start=1, 
+    def __init__(self, file_location, train_split=0.9, file_index_start=1, 
                  file_index_end=81,  filename_format='tensors_{}.pt', batch_size=32,
                   lstm_training=False, mapping_fn = None, shuffle=True, seq_length=None, batch_first=True):
         if mapping_fn is None:
@@ -168,3 +168,12 @@ class ModelOutputDatasetManager():
 
     def __getitem__(self, index):
        return self.get_dataloader(index+1)
+    
+    def get_iterator(self, train=True):
+      if self.train:
+        file_nums = self.train_file_nums
+      else:
+        file_nums = self.test_file_nums
+
+      for i in file_nums:
+         return self.get_dataloader(i)
