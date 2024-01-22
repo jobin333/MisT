@@ -182,11 +182,15 @@ class ModelOutputDatasetManager():
     def __getitem__(self, index):
        return self.get_dataloader(index+1)
     
-    def get_iterator(self, training=True):
+    def get_hmm_iterator(self, training=True):
       if training:
         file_nums = self.train_file_nums
       else:
         file_nums = self.test_file_nums
 
+      self.single_batch = True ## Making sure that entair data is produced continuesly
       for i in file_nums:
-         return self.get_dataloader(i)
+          x, y =  self.get_dataloader(i)
+          x = x.reshape(1, -1, 7)
+          yield x, y
+
