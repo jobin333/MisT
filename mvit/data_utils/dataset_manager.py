@@ -190,7 +190,9 @@ class ModelOutputDatasetManager():
 
       self.single_batch = True ## Making sure that entair data is produced continuesly
       for i in file_nums:
-          x, y =  self.get_dataloader(i)
+          ds  =  self.get_dataloader(i)
+          for x,y in ds:
+             break
           x = x.reshape(1, -1, 7)
           yield x, y
 
