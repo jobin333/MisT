@@ -115,18 +115,12 @@ class ModelOutputDatasetManager():
         if self.lstm_training:
           dl = torch.utils.data.DataLoader(ds, batch_size=1)
           for x, y in dl:
-              if self.device is not None:
-                x = x.to(self.device)
-                y = y.to(self.device)
               x = self.mapping_fn(x)
               yield x.unsqueeze(0), y
 
         else:
           dl = torch.utils.data.DataLoader(ds, batch_size=self.batch_size, shuffle=self.shuffle)
           for x, y in dl:
-              if self.device is not None:
-                x = x.to(self.device)
-                y = y.to(self.device)
               x = self.mapping_fn(x)
               yield x, y
 
@@ -137,21 +131,15 @@ class ModelOutputDatasetManager():
         if not self.batch_first:
           for x,y in dl:
               x = x.permute(1,0,2)
-              if self.device is not None:
-                x = x.to(self.device)
-                y = y.to(self.device)
               yield x, y
 
         if  self.batch_first:
           for x,y in dl:
-              if self.device is not None:
-                x = x.to(self.device)
-                y = y.to(self.device)
               yield x, y
 
     def filename_to_dataset(self, filename):
         module_logger.debug('Generating dataset for file {}'.format(filename))
-        ds = torch.load(filename)
+        ds = torch.load(filename,  map_location=self.device)
         if self.seq_length is None:
           return self.dataset_to_dataloader(ds)
         else:
