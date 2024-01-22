@@ -170,7 +170,7 @@ class ModelOutputDatasetManager():
        return self.get_dataloader(index+1)
     
     def get_iterator(self, train=True):
-      if self.train:
+      if train:
         file_nums = self.train_file_nums
       else:
         file_nums = self.test_file_nums
