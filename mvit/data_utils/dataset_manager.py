@@ -135,7 +135,7 @@ class ModelOutputDatasetManager():
 
     def dataset_to_dataloader_sequential(self, ds):
         seq_ds = SequentialDataset(ds, self.seq_length)
-        dl = DataLoader(seq_ds, batch_size=self.batch_size, shuffle=True, drop_last=False)
+        dl = DataLoader(seq_ds, batch_size=self.batch_size, shuffle=self.shuffle, drop_last=False)
         if not self.batch_first:
           for x,y in dl:
               x = x.detach()
