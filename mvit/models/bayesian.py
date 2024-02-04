@@ -18,7 +18,6 @@ def get_trans_matrix():
     return trans_matrix
 
 def get_bayesian_prob(last_prediction, prob, trans_matrix):
-    trans_matrix = get_trans_matrix()
     bayesian_prob = trans_matrix[last_prediction] * prob
     return bayesian_prob.argmax(-1)
 
