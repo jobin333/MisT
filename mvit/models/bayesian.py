@@ -24,7 +24,7 @@ def get_bayesian_prob(last_prediction, prob, trans_matrix):
 
 def generate_bayesian_prediction(x):
     trans_matrix = get_trans_matrix()
-    trans_matrix.to(x.device)
+    trans_matrix = trans_matrix.to(x.device)
     last_prediction = x[0].argmax(-1)
     predictions = []
     for prob in x:
