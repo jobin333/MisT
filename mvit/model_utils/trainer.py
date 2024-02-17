@@ -220,7 +220,10 @@ class Trainer():
     self.model = self.model.eval()
     for x,y in dataloader:
       x = x.to(self.device)
-      y = y.to(self.device)
+      if type(y) == tuple:
+        y = (item.to(self.device) for item in y)
+      else:
+        y = y.to(self.device)
       feature_x = self.model(x)
       for item in zip(feature_x, y):
           data.append(item)
