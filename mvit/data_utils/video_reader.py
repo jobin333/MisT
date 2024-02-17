@@ -125,7 +125,7 @@ class VideoReader(torch.utils.data.Dataset):
     seek_location = round(seek_location, 2)
     max_seek = 25*20 ## fps * max_iner_key_frame_duration
     search_offset = seek_location - self.last_pts
-    print('Seek location: {}, search_offset:{}'.format(seek_location, search_offset))
+    # print('Seek location: {}, search_offset:{}'.format(seek_location, search_offset))
     if search_offset < self.max_accurate_sequential_search_time and search_offset >= 0:
       pts = self.last_pts
       for i in range(max_seek):
