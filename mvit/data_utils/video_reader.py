@@ -79,7 +79,7 @@ class VideoReader(torch.utils.data.Dataset):
         label_tensor = torch.stack(labels)
         frames = []
         labels = []
-        return frame_tensor, torch.median(label_tensor),  self.get_tool_tensor(timestamp)
+        return frame_tensor, ( torch.median(label_tensor),  self.get_tool_tensor(timestamp) )
 
   def get_tool_tensor(self, timestamp):
     current_frame_number = int(timestamp*25) ## Tool annotations in 25 frame interval
