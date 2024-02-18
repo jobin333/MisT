@@ -214,11 +214,11 @@ class Trainer():
       self._train_stage(param_save_per_epochs=param_save_per_epochs, summary_only=summary_only, run_evaluation=run_evaluation)
 
 
-  def _save_model_outs_of_dataloader(self, dataloader, filename):
+  def _save_model_outs_of_dataloader(self, dataloader, filename, enable_progress=False):
     module_logger.info('Saving model output of dataloader {}'.format(filename))
     data = []
     self.model = self.model.eval()
-    for x,y in dataloader:
+    for i, (x,y) in enumerate(dataloader):
       x = x.to(self.device)
       if type(y) == torch.Tensor:
         y = y.to(self.device)
@@ -227,9 +227,12 @@ class Trainer():
       feature_x = self.model(x)
       for item in zip(feature_x, y):
           data.append(item)
+      if enable_progress:
+        if i%100 == 0:
+          print('.', end='')
     torch.save(data, filename)
 
-  def save_model_outs_of_dataset_manager(self):
+  def save_model_outs_of_dataset_manager(self, enable_progress=False):
       if not os.path.exists(self.model_outs_save_location):
           os.makedirs(self.model_outs_save_location)
 
@@ -237,4 +240,4 @@ class Trainer():
           model_out_path = os.path.join(self.model_outs_save_location, 'tensors_{}.pt'.format(i))
           data_loader = self.dataset_manager.get_dataloader(i)
           print('Creating {}'.format(model_out_path))
-          self._save_model_outs_of_dataloader(data_loader, model_out_path)
+          self._save_model_outs_of_dataloader(data_loader, model_out_path, enable_progress=enable_progress)
