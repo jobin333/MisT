@@ -218,18 +218,20 @@ class Trainer():
     module_logger.info('Saving model output of dataloader {}'.format(filename))
     data = []
     self.model = self.model.eval()
+    cpu = torch.device('cpu')
     for i, (x,y) in enumerate(dataloader):
       x = x.to(self.device)
       if type(y) == torch.Tensor:
-        y = y.to(self.device)
+        y = y.to(cpu)
       else:
-        y = (item.to(self.device) for item in y)
-      feature_x = self.model(x)
+        y = tuple(item.to(cpu) for item in y)
+      feature_x = self.model(x).to(cpu)
       for item in zip(feature_x, y):
           data.append(item)
       if enable_progress:
         if i%100 == 0:
           print('.', end='')
+    print()
     torch.save(data, filename)
 
   def save_model_outs_of_dataset_manager(self, enable_progress=False):
