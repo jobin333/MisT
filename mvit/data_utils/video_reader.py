@@ -102,10 +102,13 @@ class VideoReader(torch.utils.data.Dataset):
     ### If debugging is enabled, it will set the size of the dataloader to 1.
     if self.debugging:
       return 1
-    elif self.enable_accurate_seek:
-      return int(self.video_duration)
     else:
-      return int(self.video_duration / self.aproximate_keyframe_interval)
+      return int(self.video_duration 
+                 - (self.tubelet_size/self.video_fps) - self.seek_offset_time - 1) ## last -1 for safty
+    # elif self.enable_accurate_seek:
+    #   return int(self.video_duration)
+    # else:
+    #   return int(self.video_duration / self.aproximate_keyframe_interval)
 
   def __getitem__(self, i):
     '''
