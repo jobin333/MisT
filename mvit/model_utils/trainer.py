@@ -234,11 +234,11 @@ class Trainer():
     print()
     torch.save(data, filename)
 
-  def save_model_outs_of_dataset_manager(self, enable_progress=False):
+  def save_model_outs_of_dataset_manager(self, enable_progress=False, start_video_index=1):
       if not os.path.exists(self.model_outs_save_location):
           os.makedirs(self.model_outs_save_location)
 
-      for i in range(1,81):
+      for i in range(start_video_index, 81):
           model_out_path = os.path.join(self.model_outs_save_location, 'tensors_{}.pt'.format(i))
           data_loader = self.dataset_manager.get_dataloader(i)
           print('Creating {}'.format(model_out_path))
