@@ -226,7 +226,7 @@ class Trainer():
       else:
         y = tuple(item.to(cpu) for item in y)
       feature_x = self.model(x).to(cpu)
-      for item in zip(feature_x, y):
+      for item in zip(feature_x, *y):
           data.append(item)
       if enable_progress:
         if i%100 == 0:
