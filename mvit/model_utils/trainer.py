@@ -217,7 +217,7 @@ class Trainer():
   def _save_model_outs_of_dataloader(self, dataloader, filename, enable_progress=False):
     module_logger.info('Saving model output of dataloader {}'.format(filename))
     data = []
-    self.model = self.model.eval()
+    self.model.eval()
     cpu = torch.device('cpu')
     for i, (x,y) in enumerate(dataloader):
       x = x.to(self.device)
