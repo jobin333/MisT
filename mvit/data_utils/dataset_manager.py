@@ -70,6 +70,10 @@ class Cholec80DatasetManager():
 
 class SequentialDataset():
     def __init__(self, dataset, seq_length):
+        if len(dataset[0]) == 3:
+           self.tool_info = True
+        else:
+           self.tool_info = False
         self.dataset = dataset
         self.dataset_length = len(dataset) - seq_length - 1 # 1 For safty 
         self.seq_length = seq_length
@@ -79,11 +83,20 @@ class SequentialDataset():
   
     def __getitem__(self, idx):
         data_slice = self.dataset[idx:idx+self.seq_length]
-        x, y = zip(*data_slice)
-        x = torch.stack(x)
-        y = torch.stack(y)
-        y = y[self.seq_length // 2]
-        return x, y
+        if not self.tool_info:
+          x, y = zip(*data_slice)
+          x = torch.stack(x)
+          y = torch.stack(y)
+          y = y[self.seq_length // 2]
+          return x, y
+        else:
+          x, y, z = zip(*data_slice)
+          x = torch.stack(x)
+          y = torch.stack(y)
+          z = torch.stack(z)
+          y = y[self.seq_length // 2]
+          z = z[self.seq_length // 2]
+          return x, y, z           
 
 
 class ModelOutputDatasetManager():
