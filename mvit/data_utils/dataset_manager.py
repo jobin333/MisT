@@ -92,12 +92,14 @@ class ModelOutputDatasetManager():
     '''
     def __init__(self, file_location, train_split=0.9, file_index_start=1, single_batch=False,
                  file_index_end=81,  filename_format='tensors_{}.pt', batch_size=32, device=None,
-                  lstm_training=False, mapping_fn = None, shuffle=True, seq_length=None, batch_first=True,):
+                  lstm_training=False, mapping_fn = None, shuffle=True, seq_length=None, batch_first=True,
+                  tool_info=True):
         if mapping_fn is None:
           self.mapping_fn = lambda x: x
         else:
           self.mapping_fn = mapping_fn
-          
+        
+        self.tool_info = tool_info
         self.file_location = file_location
         self.filename_format = filename_format
         self.file_count = file_index_end - file_index_start
@@ -145,18 +147,34 @@ class ModelOutputDatasetManager():
     def dataset_to_dataloader_sequential(self, ds):
         seq_ds = SequentialDataset(ds, self.seq_length)
         dl = DataLoader(seq_ds, batch_size=self.batch_size, shuffle=self.shuffle, drop_last=False)
-        if not self.batch_first:
-          for x,y in dl:
-              x = x.detach()
-              y = y.detach()
-              x = x.permute(1,0,2)
-              yield x, y
+        # if not self.batch_first:
+        #   for x,y in dl:
+        #       x = x.detach()
+        #       y = y.detach()
+        #       x = x.permute(1,0,2)
+        #       yield x, y
 
-        if  self.batch_first:
-          for x,y in dl:
-              x = x.detach()
-              y = y.detach()
-              yield x, y
+        # if  self.batch_first:
+        #   for x,y in dl:
+        #       x = x.detach()
+        #       y = y.detach()
+        #       yield x, y
+        if self.tool_info:
+          for frame,phase,tool in dl:
+            frame = frame.detach()
+            phase = phase.detach()
+            tool = tool.detach()
+            if not self.batch_first:
+              frame = frame.permute(1,0,2)
+            yield frame, phase, tool
+
+        if not self.tool_info:
+          for frame,phase in dl:
+            frame = frame.detach()
+            phase = phase.detach()
+            if not self.batch_first:
+              frame = frame.permute(1,0,2)
+            yield frame, phase
 
     def filename_to_dataset(self, filename):
         module_logger.debug('Generating dataset for file {}'.format(filename))

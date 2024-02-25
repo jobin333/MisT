@@ -1,0 +1,1 @@
+wget --user=camma_cholec80 --password=cholec80_unistra  --keep-session-cookies http://camma.u-strasbg.fr/datasets/cholec80/cholec80.zip
