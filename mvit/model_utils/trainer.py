@@ -17,7 +17,7 @@ class Trainer():
                optimizer_params={'lr':0.001}, save_during_training=False,
                label_index=None):
     module_logger.info('Trainer Initializing')
-    self.label_index = (2 if label_index is None else label_index)
+    self.label_index = (1 if label_index is None else label_index)
     self.retain_graph=retain_graph
     self.device = device
     self.save_model_param_path = save_model_param_path
