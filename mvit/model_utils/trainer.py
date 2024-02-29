@@ -101,7 +101,7 @@ class Trainer():
       with torch.set_grad_enabled(False):
         outputs = self.model(inputs)
         loss = self.loss_fn(outputs, labels)
-        pred = torch.argmax(outputs, 1)
+        pred = [outputs if self.tool_training else torch.argmax(outputs, 1) ]
         running_loss += loss.item()
         if not self.tool_training:
           accurate_classifications += sum(pred==labels).item()
@@ -137,7 +137,7 @@ class Trainer():
         loss = self.loss_fn(outputs, labels)
         loss.backward(retain_graph=self.retain_graph)
         self.optimizer.step()
-      pred = torch.argmax(outputs, 1)
+      pred = [outputs if self.tool_training else torch.argmax(outputs, 1) ]
 
       running_loss += loss.item()
       if not self.tool_training:
