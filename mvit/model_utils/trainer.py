@@ -14,8 +14,10 @@ class Trainer():
                 train_step_callback=None, model=None, enable_training=True,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, 
-               optimizer_params={'lr':0.001}, save_during_training=False):
+               optimizer_params={'lr':0.001}, save_during_training=False,
+               label_index=None):
     module_logger.info('Trainer Initializing')
+    self.label_index = (2 if label_index is None else label_index)
     self.retain_graph=retain_graph
     self.device = device
     self.save_model_param_path = save_model_param_path
@@ -90,9 +92,9 @@ class Trainer():
     accurate_classifications = 0
     datapoints_seen = 0
     since = time.time()
-    for inputs, labels in dataloader:
-      inputs = inputs.to(self.device)
-      labels = labels.to(self.device)
+    for data in dataloader:
+      inputs = data[0].to(self.device)
+      labels = data[self.label_index].to(self.device)
       datapoints_seen += labels.shape[0]
 
       with torch.set_grad_enabled(False):
@@ -120,9 +122,9 @@ class Trainer():
     datapoints_seen = 0
 
     # Iterate over data.
-    for inputs, labels in dataloader:
-      inputs = inputs.to(self.device)
-      labels = labels.to(self.device)
+    for data in dataloader:
+      inputs = data[0].to(self.device)
+      labels = data[self.label_index].to(self.device)
       datapoints_seen += labels.shape[0]
       if not self.retain_graph:
         self.optimizer.zero_grad()
