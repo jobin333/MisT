@@ -15,9 +15,10 @@ class Trainer():
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, 
                optimizer_params={'lr':0.001}, save_during_training=False,
-               label_index=None):
+               tool_training=False,):
     module_logger.info('Trainer Initializing')
-    self.label_index = (1 if label_index is None else label_index) ## Index 1 - Phase info ; Index-2: Tool info
+    self.tool_training = tool_training
+    self.label_index = (2 if tool_training else 1) ## Index 1 - Phase info ; Index-2: Tool info
     self.retain_graph=retain_graph
     self.device = device
     self.save_model_param_path = save_model_param_path
@@ -102,8 +103,10 @@ class Trainer():
         loss = self.loss_fn(outputs, labels)
         pred = torch.argmax(outputs, 1)
         running_loss += loss.item()
-        accurate_classifications += sum(pred==labels).item()
-
+        if not self.tool_training:
+          accurate_classifications += sum(pred==labels).item()
+        else:
+          accurate_classifications += torch.sum(pred>0==labels>0).item()
     average_loss = running_loss / datapoints_seen
     accuracy = accurate_classifications / datapoints_seen
     time_elapsed = time.time() - since
@@ -137,7 +140,10 @@ class Trainer():
       pred = torch.argmax(outputs, 1)
 
       running_loss += loss.item()
-      accurate_classifications += sum(pred==labels).item()
+      if not self.tool_training:
+        accurate_classifications += sum(pred==labels).item()
+      else:
+        accurate_classifications += torch.sum(pred>0==labels>0).item()
 
     average_loss = running_loss / datapoints_seen
     accuracy = accurate_classifications / datapoints_seen
