@@ -143,7 +143,8 @@ class Trainer():
       if not self.tool_training:
         accurate_classifications += sum(pred==labels).item()
       else:
-        accurate_classifications += torch.sum(torch.eq(pred>0,labels>0)).item()
+        accurate_classifications += torch.sum(torch.eq(pred>0,labels>0)).item() / 7
+        ### 7 is the number of tool types
 
     average_loss = running_loss / datapoints_seen
     accuracy = accurate_classifications / datapoints_seen
