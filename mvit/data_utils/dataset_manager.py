@@ -180,7 +180,7 @@ class ModelOutputDatasetManager():
             tool = tool.detach().to(self.tool_type)
             if not self.batch_first:
               frame = frame.permute(1,0,2)
-            yield frame, phase, tool
+            yield frame, tool
 
         if not self.tool_info:
           for frame,phase in dl:
