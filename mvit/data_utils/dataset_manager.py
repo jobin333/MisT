@@ -106,14 +106,14 @@ class ModelOutputDatasetManager():
     def __init__(self, file_location, train_split=0.9, file_index_start=1, single_batch=False,
                  file_index_end=81,  filename_format='tensors_{}.pt', batch_size=32, device=None,
                   lstm_training=False, mapping_fn = None, shuffle=True, seq_length=None, batch_first=True,
-                  tool_info=True, tool_type=torch.float, tool_offset=0):
+                  tool_info=True, tool_type=torch.float, tool_unity_norm=True):
         if mapping_fn is None:
           self.mapping_fn = lambda x: x
         else:
           self.mapping_fn = mapping_fn
         
         self.tool_info = tool_info
-        self.tool_offset = tool_offset
+        self.tool_unity_norm = tool_unity_norm
         self.tool_type = tool_type
         self.file_location = file_location
         self.filename_format = filename_format
@@ -181,7 +181,8 @@ class ModelOutputDatasetManager():
             tool = tool.detach().to(self.tool_type)
             if not self.batch_first:
               frame = frame.permute(1,0,2)
-            tool = tool + self.tool_offset
+            if self.tool_unity_norm:
+              tool = tool * 2 - 1
             yield frame, phase, tool 
 
         if not self.tool_info:
