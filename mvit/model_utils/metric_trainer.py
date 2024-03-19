@@ -122,16 +122,16 @@ class Trainer():
 
   def train(self, epochs, feature_keys, label_key):
     for i in range(1, epochs+1):
-      last = time.time
+      last = time.time()
       print('Epoch: {}'.format(i))
       ## Training and logging 
-      print('\tTraining')
+      print('\tTraining', end='')
       self._train_stage(feature_keys, label_key)
       for metric in self.metrics:
         print('\t\t{}'.format(str(metric)))
 
       ## Testing and logging
-      print('\tTesting')
+      print('\tTesting', end='')
       self._test_stage(feature_keys, label_key)
       for metric in self.metrics:
         print('\t\t{}'.format(str(metric)))
