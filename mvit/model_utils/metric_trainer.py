@@ -106,6 +106,7 @@ class Trainer():
       self._train_step(dataloader)
       if progress:
         print('.', end='')
+    print()
 
   def _test_stage(self, feature_keys, label_key, progress=True):
     '''
@@ -117,7 +118,7 @@ class Trainer():
       self._train_step(dataloader)
       if progress:
         print('.', end='')
-
+    print()
 
   def train(self, epochs, feature_keys, label_key):
     for i in range(1, epochs+1):
@@ -135,5 +136,5 @@ class Trainer():
       for metric in self.metrics:
         print('\t\t{}'.format(str(metric)))
       time_taken = time.time() - last
-      print('\t\tTime Taken: {:4.2}'.format(time_taken))
+      print('\t\tTime Taken: {:4.2f}'.format(time_taken))
 
