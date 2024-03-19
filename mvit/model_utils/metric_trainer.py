@@ -67,7 +67,7 @@ class Trainer():
       with torch.set_grad_enabled(False):
         outputs = self.model(features)
         for metric in self.metrics:
-          metric.update(outputs, labels, training=False)
+          metric.update(outputs, labels, phase='test')
 
 
   def _train_step(self, dataloader):
@@ -93,7 +93,7 @@ class Trainer():
 
       with torch.set_grad_enabled(False):
         for metric in self.metrics:
-          metric.update(outputs, labels, training=True)
+          metric.update(outputs, labels, phase='train')
 
 
   def _train_stage(self, feature_keys, label_key, progress=True):
@@ -128,12 +128,14 @@ class Trainer():
       print('\tTraining', end='')
       self._train_stage(feature_keys, label_key)
       for metric in self.metrics:
+        metric.compute(phase='train')
         print('\t\t{}'.format(str(metric)))
 
       ## Testing and logging
       print('\tTesting', end='')
       self._test_stage(feature_keys, label_key)
       for metric in self.metrics:
+        metric.compute(phase='test')
         print('\t\t{}'.format(str(metric)))
       time_taken = time.time() - last
       print('\t\tTime Taken: {:4.2f}'.format(time_taken))
