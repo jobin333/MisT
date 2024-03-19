@@ -97,42 +97,42 @@ class Trainer():
           metric.update(outputs, labels, training=True)
 
 
-  def _train_stage(self, progress=True):
+  def _train_stage(self, feature_keys, label_key, progress=True):
     '''
     Function to train entire dataset one epoch
     '''
 
     for idx in self.training_video_index:
-      dataloader = self.dataset_manager.get_dataloader(idx)
+      dataloader = self.dataset_manager.get_dataloader(idx, feature_keys, label_key)
       self._train_step(dataloader)
       if progress:
         print('.', end='')
 
-  def _test_stage(self, progress=True):
+  def _test_stage(self, feature_keys, label_key, progress=True):
     '''
     Function to train entire dataset one epoch
     '''
 
     for idx in self.validation_video_index:
-      dataloader = self.dataset_manager.get_dataloader(idx)
+      dataloader = self.dataset_manager.get_dataloader(idx, feature_keys, label_key)
       self._train_step(dataloader)
       if progress:
         print('.', end='')
 
 
-  def train(self, epochs):
+  def train(self, epochs, feature_keys, label_key):
     for i in range(1, epochs+1):
       last = time.time
       print('Epoch: {}'.format(i))
       ## Training and logging 
       print('\tTraining')
-      self._train_stage()
+      self._train_stage(feature_keys, label_key)
       for metric in self.metrics:
         print('\t\t{}'.format(str(metric)))
 
       ## Testing and logging
       print('\tTesting')
-      self._test_stage()
+      self._test_stage(feature_keys, label_key)
       for metric in self.metrics:
         print('\t\t{}'.format(str(metric)))
 
