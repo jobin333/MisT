@@ -60,8 +60,7 @@ class Trainer():
     self.model.eval()
     for features, labels in dataloader:
       # For transfering data to GPU
-      for idx in features:
-        features[idx] = features[idx].to(self.device)
+      features = features.to(self.device)
       labels = labels.to(self.device)
 
       with torch.set_grad_enabled(False):
