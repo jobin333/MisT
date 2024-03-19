@@ -33,7 +33,7 @@ class DatasetManager():
     return len(self.data)
 
   def get_dataloader(self, idx, feature_keys, label_key):
-      ds =  self.data[idx]
+      ds =  self.data[idx-1] ## video index range from 1-80
       ds =  DictDataset(ds, feature_keys, label_key)
       return DataLoader(ds, batch_size=self.batch_size, shuffle=self.shuffle)
 
