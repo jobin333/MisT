@@ -16,7 +16,7 @@ class DatasetManager():
   def __len__(self):
     return len(self.data)
 
-  def __getitem__(self, idx):
+  def get_dataloader(self, idx):
       return self.data[idx+1]
 
   def load_files(self, indices):
