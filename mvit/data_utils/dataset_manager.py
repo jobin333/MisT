@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 from mvit.data_utils.video_reader import VideoReader
 from mvit.logging_utils.logger import logger
 import random
+import numpy as np
 
 module_logger = logger.getChild(__name__)
 class Cholec80DatasetManager():
@@ -240,3 +241,34 @@ class ModelOutputDatasetManager():
           x = x.reshape(1, -1, 7)
           yield x, y
 
+
+
+class ConcatFeatureDatasetManager():
+  def __init__(self, feature_path, discount=0.9):
+    indices = range(1, 81)
+    train_indices = np.random.choice(indices, 70, replace=False)
+    test_indices = np.setxor1d(indices, train_indices)
+    # return np.sort(train_indices), np.sort(test_indices)
+    self.discount = discount
+    self.train_data = self.load_files(train_indices)
+    self.train_data = self.concat_file_data(self.train_data)
+    self.test_data = self.load_files(test_indices)
+    self.test_data = self.concat_file_data(self.test_data)
+    self.feature_path = feature_path
+
+  def get_dataset(self, keys, train=True):
+    self.keys = keys
+    self.data = (self.train_data if train else self.test_data)
+    return self
+
+  def __len__(self):
+    return self.data['feature'].shape[0]
+
+  def __getitem__(self, idx):
+      return tuple(self.data[key][idx] for key in self.keys)
+
+  def load_files(self, indices):
+    file_paths = [os.path.join(self.feature_path, f'tensors_{i}.pt') for i in indices]
+    files = [torch.load(path) for path in file_paths ]
+    data = [self.add_cumsum_info(file) for file in files]
+    return data
