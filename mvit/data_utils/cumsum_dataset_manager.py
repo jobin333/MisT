@@ -9,8 +9,8 @@ module_logger = logger.getChild(__name__)
 class DatasetManager():
   def __init__(self, feature_path, discount=0.9):
     indices = range(1, 81)
-    self.data = self.load_files(indices)
     self.feature_path = feature_path
+    self.data = self.load_files(indices)
     self.discount = discount
 
   def __len__(self):
