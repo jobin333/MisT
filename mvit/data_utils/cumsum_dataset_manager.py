@@ -10,8 +10,8 @@ class DatasetManager():
   def __init__(self, feature_path, discount=0.9):
     indices = range(1, 81)
     self.feature_path = feature_path
-    self.data = self.load_files(indices)
     self.discount = discount
+    self.data = self.load_files(indices)
 
   def __len__(self):
     return len(self.data)
