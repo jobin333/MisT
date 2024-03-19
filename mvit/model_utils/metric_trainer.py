@@ -115,7 +115,7 @@ class Trainer():
 
     for idx in self.validation_video_index:
       dataloader = self.dataset_manager.get_dataloader(idx, feature_keys, label_key)
-      self._train_step(dataloader)
+      self._test_step(dataloader)
       if progress:
         print('.', end='')
     print()
