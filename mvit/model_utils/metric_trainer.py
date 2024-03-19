@@ -9,7 +9,7 @@ class Trainer():
   '''
   Super class implimenting basic training functionality
   '''
-  def __init__(self, dataset_manager, device, metrics, model=None, enable_training=True,
+  def __init__(self, dataset_manager, device, metrics, model=None,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, 
                optimizer_params={'lr':0.001}):
@@ -20,8 +20,7 @@ class Trainer():
     self.dataset_manager = dataset_manager
     self.loss_fn = loss_fn
     self.model = model.to(device)
-    if enable_training:
-      self.optimizer = self.get_optimizer(optimizer_fn, optimizer_params)
+    self.optimizer = self.get_optimizer(optimizer_fn, optimizer_params)
     self.lr_scheduler = lr_scheduler
     self.dataset_video_count = len(self.dataset_manager)
     validation_video_count = int(self.dataset_video_count * 0.1 )
