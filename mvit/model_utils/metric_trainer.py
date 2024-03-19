@@ -9,11 +9,12 @@ class Trainer():
   '''
   Super class implimenting basic training functionality
   '''
-  def __init__(self, dataset_manager, device, model=None, enable_training=True,
+  def __init__(self, dataset_manager, device, metrics, model=None, enable_training=True,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, 
                optimizer_params={'lr':0.001}):
     module_logger.info('Trainer Initializing')
+    self.metrics = metrics
     self.device = device
     self.save_model_param_path = save_model_param_path
     self.dataset_manager = dataset_manager
