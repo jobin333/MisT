@@ -1,6 +1,7 @@
 import torch
 import time
 import os
+import numpy as np
 
 from mvit.logging_utils.logger import logger
 module_logger = logger.getChild(__name__)
@@ -11,7 +12,7 @@ class Trainer():
   '''
   def __init__(self, dataset_manager, device, metrics, model=None,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
-               lr_scheduler=None, optimizer_fn=torch.optim.Adam, 
+               lr_scheduler=None, optimizer_fn=torch.optim.Adam, num_train_videos=70,
                optimizer_params={'lr':0.001}):
     module_logger.info('Trainer Initializing')
     self.metrics = metrics
@@ -21,12 +22,9 @@ class Trainer():
     self.loss_fn = loss_fn
     self.model = model.to(device)
     self.optimizer = self.get_optimizer(optimizer_fn, optimizer_params)
-    self.lr_scheduler = lr_scheduler
-    self.dataset_video_count = len(self.dataset_manager)
-    validation_video_count = int(self.dataset_video_count * 0.1 )
-    self.validation_video_index = range(1, validation_video_count)
-    self.training_video_index = range(validation_video_count, self.dataset_video_count+1)
-
+    indices = range(1, 81)
+    self.training_video_index = np.random.choice(indices, num_train_videos, replace=False)
+    self.validation_video_index = np.setxor1d(indices, self.training_video_index)
 
   
   def get_optimizer(self, optimizer_fn, optimizer_params):
