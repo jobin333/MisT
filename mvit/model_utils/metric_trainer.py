@@ -134,6 +134,6 @@ class Trainer():
       self._test_stage(feature_keys, label_key)
       for metric in self.metrics:
         print('\t\t{}'.format(str(metric)))
-
-      print('\t\tTime Taken{}'.format(time.time() - last))
+      time_taken = time.time() - last
+      print('\t\tTime Taken: {:4.2}'.format(time_taken))
 
