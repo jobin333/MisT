@@ -13,13 +13,14 @@ class Trainer():
   def __init__(self, dataset_manager, device, metrics, model=None,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, num_train_videos=70,
-               optimizer_params={'lr':0.001}):
+               optimizer_params={'lr':0.001}, print_epoch_time=False):
     module_logger.info('Trainer Initializing')
     self.metrics = metrics
     self.device = device
     self.save_model_param_path = save_model_param_path
     self.dataset_manager = dataset_manager
     self.loss_fn = loss_fn
+    self.print_epoch_time = print_epoch_time
     self.model = model.to(device)
     self.optimizer = self.get_optimizer(optimizer_fn, optimizer_params)
     indices = range(1, 81)
@@ -137,5 +138,6 @@ class Trainer():
         metric.compute(phase='test')
         print('\t\t{}'.format(str(metric)))
       time_taken = time.time() - last
-      print('\t\tTime Taken: {:4.2f}'.format(time_taken))
+      if self.print_epoch_time:
+        print('\t\tTime Taken: {:4.2f}'.format(time_taken))
 
