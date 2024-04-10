@@ -13,10 +13,8 @@ class Trainer():
   def __init__(self, dataset_manager, device, metrics, model=None,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, num_test_videos=16,
-               optimizer_params={'lr':0.001}, print_epoch_time=False, random_train_test=False, cusum=False, cusum_warmup=False):
+               optimizer_params={'lr':0.001}, print_epoch_time=False, random_train_test=False):
     module_logger.info('Trainer Initializing')
-    self.cusum_warmup = cusum_warmup
-    self.cusum = cusum
     self.metrics = metrics
     self.device = device
     self.save_model_param_path = save_model_param_path
@@ -98,13 +96,13 @@ class Trainer():
         print('.', end='')
     print()
 
-  def train(self, epochs):
+  def train(self, epochs, warmup=False):
     for i in range(1, epochs+1):
       last = time.time()
       print('Epoch: {}'.format(i))
       ## Training and logging 
       print('\tTraining', end='')
-      self._train_stage()
+      self._train_stage(warmup=warmup)
       for metric in self.metrics:
         metric.compute(phase='train')
         print('\t\t{}'.format(str(metric)))
