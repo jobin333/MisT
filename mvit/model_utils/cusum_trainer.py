@@ -59,22 +59,19 @@ class Trainer():
       print('Loading model from {}'.format(self.save_model_param_path))
       self.model.load_state_dict(torch.load(self.save_model_param_path))
 
-  def _train_stage(self,progress=True):
+  def _train_stage(self,progress=True, warmup=False):
     '''
     Function to train entire dataset one epoch
     '''
     self.model.train()
     for idx in self.training_video_index:
       features, target = self.dataset_manager.get_dataset(idx)
-      if self.cusum:
-        with torch.set_grad_enabled(False):
-          onehot_target = target if self.cusum_warmup else features.argmax(-1)
-          onehot = torch.nn.functional.one_hot(onehot_target, num_classes=7)
-          onehot_cumsum = torch.cumsum(onehot)
-          features = torch.cat(features, onehot_cumsum)
       self.optimizer.zero_grad()
       with torch.set_grad_enabled(True):
-        outputs = self.model(features)
+        if warmup:
+          outputs = self.model(features, target)
+        else:
+          outputs = self.model(features)
         loss = self.loss_fn(outputs, target)
       loss.backward()
       self.optimizer.step()
