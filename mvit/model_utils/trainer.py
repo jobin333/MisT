@@ -234,6 +234,7 @@ class Trainer():
       x = x.to(self.device)
       if type(y) == torch.Tensor:
         y = y.to(cpu)
+        y = (y,) ## To make it a tuple
       else:
         y = tuple(item.to(cpu) for item in y)
       feature_x = self.model(x)
