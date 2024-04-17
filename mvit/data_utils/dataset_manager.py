@@ -2,7 +2,7 @@ from torchdata.datapipes.iter import FileLister, FileOpener
 import torch
 import os 
 from torch.utils.data import DataLoader
-from mvit.data_utils.video_reader import VideoReader
+from mvit.data_utils.video_reader import VideoReader, VideoReaderOld
 from mvit.logging_utils.logger import logger
 import random
 import numpy as np
@@ -54,7 +54,7 @@ class Cholec80DatasetManagerOld():
     timestamp_path = 'video{:02d}-timestamp.txt'.format(self.video_index)
     timestamp_path = os.path.join(self.cholec80_dataset_location, timestamp_path)
 
-    videoreader = VideoReader(video_path=video_path, timestamp_path=timestamp_path,
+    videoreader = VideoReaderOld(video_path=video_path, timestamp_path=timestamp_path,
                         tubelet_size=self.tubelet_size, 
                         enable_accurate_seek=self.enable_video_reader_accurate_seek,
                         frame_skips=self.frame_skips, debugging=self.debugging, aproximate_keyframe_interval=self.aproximate_keyframe_interval)
