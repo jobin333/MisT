@@ -49,29 +49,19 @@ class Cholec80DatasetManagerOld():
     else:
       self.video_index = video_index
 
-    tool_folder = 'tool_annotations'
-    video_folder = 'videos'
-    timestamp_folder = 'videos'
-
     video_path = 'video{:02d}.mp4'.format(self.video_index)
-    video_path = os.path.join(self.cholec80_dataset_location, video_folder, video_path)
+    video_path = os.path.join(self.cholec80_dataset_location, video_path)
     timestamp_path = 'video{:02d}-timestamp.txt'.format(self.video_index)
-    timestamp_path = os.path.join(self.cholec80_dataset_location, timestamp_folder, timestamp_path)
-    tool_annotations_path = 'video{:02d}-tool.txt'.format(self.video_index)
-    tool_annotations_path = os.path.join(self.cholec80_dataset_location, tool_folder, tool_annotations_path)
+    timestamp_path = os.path.join(self.cholec80_dataset_location, timestamp_path)
 
-    videoreader = VideoReader(video_path=video_path, timestamp_path=timestamp_path, 
-                              tool_annotations_path = tool_annotations_path,
+    videoreader = VideoReader(video_path=video_path, timestamp_path=timestamp_path,
                         tubelet_size=self.tubelet_size, 
                         enable_accurate_seek=self.enable_video_reader_accurate_seek,
-                        frame_skips=self.frame_skips, 
-                        debugging=self.debugging, 
-                        aproximate_keyframe_interval=self.aproximate_keyframe_interval)
+                        frame_skips=self.frame_skips, debugging=self.debugging, aproximate_keyframe_interval=self.aproximate_keyframe_interval)
     self.current_video_reader = videoreader  ## For debugging purpose
     dataloader = DataLoader(videoreader, batch_size=self.batch_size, shuffle=self.shuffle)
     return dataloader
   
-
 class Cholec80DatasetManager():
   '''
   ####### Example
