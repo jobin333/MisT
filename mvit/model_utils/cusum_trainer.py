@@ -90,6 +90,8 @@ class Trainer():
     self.model.eval()
     for idx in self.validation_video_index:
       features, target = self.dataset_manager.get_dataset(idx)
+      features = features.to(self.device)
+      target = target.to(self.device)
       outputs = self.model(features)
       with torch.set_grad_enabled(False):
         for metric in self.metrics:
@@ -100,7 +102,6 @@ class Trainer():
 
   def train(self, epochs, warmup=False):
     self.model.to(self.device)
-    self.model.train()
     for i in range(1, epochs+1):
       last = time.time()
       print('Epoch: {}'.format(i))
