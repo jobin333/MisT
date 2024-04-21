@@ -64,6 +64,8 @@ class Trainer():
     self.model.train()
     for idx in self.training_video_index:
       features, target = self.dataset_manager.get_dataset(idx)
+      features = features.to(self.device)
+      target = target.to(self.device)
       self.optimizer.zero_grad()
       with torch.set_grad_enabled(True):
         if warmup:
@@ -97,6 +99,8 @@ class Trainer():
     print()
 
   def train(self, epochs, warmup=False):
+    self.model.to(self.device)
+    self.model.train()
     for i in range(1, epochs+1):
       last = time.time()
       print('Epoch: {}'.format(i))
