@@ -334,7 +334,7 @@ class SimpleModelOuptutDatasetManager():
     data_list = [self.get_dataset(idx)for idx in range(1,81)]
     self.features, self.phase = zip(*data_list)
 
-  def get_dataset(self, idx):
+  def get_dataloader(self, idx):
     path = f'tensors_{idx}.pt'
     path = os.path.join(self.features_save_loc, path)
     ds = torch.load(path)
