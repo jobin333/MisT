@@ -331,13 +331,18 @@ class ConcatFeatureDatasetManager():
 class SimpleModelOuptutDatasetManager():
   def __init__(self,features_save_loc):
     self.features_save_loc = features_save_loc
-    data_list = [self.get_dataloader(idx)for idx in range(1,81)]
-    self.features, self.phase = zip(*data_list)
+    self.data_list = [self.get_dataset(idx)for idx in range(1,81)]
 
-  def get_dataloader(self, idx):
+  def get_dataset(self, idx):
     path = f'tensors_{idx}.pt'
     path = os.path.join(self.features_save_loc, path)
     ds = torch.load(path)
     # x, y, z = zip(*ds)
     x, y = zip(*ds)
-    return [ (torch.stack(x), torch.stack(y)) ]
+    return torch.stack(x), torch.stack(y)
+  
+  def get_dataloader(self, idx):
+     return [self.data_list[idx]]
+  
+
+  
