@@ -340,4 +340,4 @@ class SimpleModelOuptutDatasetManager():
     ds = torch.load(path)
     # x, y, z = zip(*ds)
     x, y = zip(*ds)
-    return torch.stack(x), torch.stack(y)
+    return [ (torch.stack(x), torch.stack(y)) ]

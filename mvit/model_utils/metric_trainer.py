@@ -100,13 +100,16 @@ class Trainer():
           metric.update(outputs, labels, phase='train')
 
 
-  def _train_stage(self, feature_keys, label_key, progress=True):
+  def _train_stage(self, feature_keys=None, label_key=None, progress=True):
     '''
     Function to train entire dataset one epoch
     '''
 
     for idx in self.training_video_index:
-      dataloader = self.dataset_manager.get_dataloader(idx, feature_keys, label_key)
+      if feature_keys is None:
+        dataloader = self.dataset_manager.get_dataloader(idx)
+      else:
+        dataloader = self.dataset_manager.get_dataloader(idx, feature_keys, label_key)
       self._train_step(dataloader)
       if progress:
         print('.', end='')
@@ -144,4 +147,8 @@ class Trainer():
       time_taken = time.time() - last
       if self.print_epoch_time:
         print('\t\tTime Taken: {:4.2f}'.format(time_taken))
+
+
+
+
 
