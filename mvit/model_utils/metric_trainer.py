@@ -127,7 +127,7 @@ class Trainer():
         print('.', end='')
     print()
 
-  def train(self, epochs, feature_keys, label_key):
+  def train(self, epochs, feature_keys=None, label_key=None):
     for i in range(1, epochs+1):
       last = time.time()
       print('Epoch: {}'.format(i))
