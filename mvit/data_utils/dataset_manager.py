@@ -342,7 +342,7 @@ class SimpleModelOuptutDatasetManager():
     return torch.stack(x), torch.stack(y)
   
   def get_dataloader(self, idx):
-     return [self.data_list[idx]]
+     return [self.data_list[idx-1]]
   
 
   
