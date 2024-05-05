@@ -115,13 +115,16 @@ class Trainer():
         print('.', end='')
     print()
 
-  def _test_stage(self, feature_keys, label_key, progress=True):
+  def _test_stage(self, feature_keys=None, label_key=None, progress=True):
     '''
     Function to train entire dataset one epoch
     '''
 
     for idx in self.validation_video_index:
-      dataloader = self.dataset_manager.get_dataloader(idx, feature_keys, label_key)
+      if feature_keys is None:
+        dataloader = self.dataset_manager.get_dataloader(idx)
+      else:
+        dataloader = self.dataset_manager.get_dataloader(idx, feature_keys, label_key)
       self._test_step(dataloader)
       if progress:
         print('.', end='')
