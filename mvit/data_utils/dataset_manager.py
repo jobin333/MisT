@@ -331,7 +331,7 @@ class ConcatFeatureDatasetManager():
 class SimpleModelOuptutDatasetManager():
   def __init__(self,features_save_loc):
     self.features_save_loc = features_save_loc
-    data_list = [self.get_dataset(idx)for idx in range(1,81)]
+    data_list = [self.get_dataloader(idx)for idx in range(1,81)]
     self.features, self.phase = zip(*data_list)
 
   def get_dataloader(self, idx):
