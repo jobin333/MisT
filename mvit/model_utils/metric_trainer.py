@@ -12,8 +12,9 @@ class Trainer():
   '''
   def __init__(self, dataset_manager, device, metrics, model=None,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
-               lr_scheduler=None, optimizer_fn=torch.optim.Adam, num_test_videos=16,
-               optimizer_params={'lr':0.001}, print_epoch_time=False, random_train_test=False):
+               lr_scheduler=None, optimizer_fn=torch.optim.Adam, num_test_videos=12,
+               optimizer_params={'lr':0.001}, print_epoch_time=False, random_train_test=False, 
+               train_vid_first=False):
     module_logger.info('Trainer Initializing')
     self.metrics = metrics
     self.device = device
@@ -28,8 +29,11 @@ class Trainer():
       self.validation_video_index = np.random.choice(indices, num_test_videos, replace=False)
       self.training_video_index = np.setxor1d(indices, self.training_video_index)
     else:
-      self.validation_video_index = range(1, num_test_videos)
-      self.training_video_index = range(num_test_videos, 81)
+      self.validation_video_index = range(1, num_test_videos+1)
+      self.training_video_index = range(num_test_videos+1, 81)
+    if train_vid_first:
+      self.training_video_index = range(1, 81-num_test_videos)      
+      self.validation_video_index = range(81-num_test_videos, 81)
 
   
   def get_optimizer(self, optimizer_fn, optimizer_params):
