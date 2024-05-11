@@ -329,7 +329,8 @@ class ConcatFeatureDatasetManager():
 
 
 class SimpleModelOuptutDatasetManager():
-    def __init__(self,features_save_loc, seq_length=30, seq_delay=None):
+    def __init__(self,features_save_loc, seq_length=30, seq_delay=None, enable_sequence=True):
+        self.enable_sequence = enable_sequence
         self.seq_length = seq_length
         if seq_delay is None:
             self.seq_delay = self.seq_length // 2
@@ -356,6 +357,8 @@ class SimpleModelOuptutDatasetManager():
 
     def get_dataloader(self, idx):
         x, y = self.data_list[idx-1]
+        if not self.enable_sequence:
+           return x, y
         data_length = len(y)
         x = self.generate_stack(x)
         x = x[self.seq_delay:]
