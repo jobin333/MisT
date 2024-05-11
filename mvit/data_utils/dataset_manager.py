@@ -329,20 +329,37 @@ class ConcatFeatureDatasetManager():
 
 
 class SimpleModelOuptutDatasetManager():
-  def __init__(self,features_save_loc):
-    self.features_save_loc = features_save_loc
-    self.data_list = [self.get_dataset(idx)for idx in range(1,81)]
+    def __init__(self,features_save_loc, seq_length=30, seq_delay=None):
+        self.seq_length = seq_length
+        if seq_delay is None:
+            self.seq_delay = self.seq_length // 2
+        else:
+            self.seq_delay = seq_delay
+        self.features_save_loc = features_save_loc
+        self.data_list = [self.get_dataset(idx)for idx in range(1,81)]
 
-  def get_dataset(self, idx):
-    path = f'tensors_{idx}.pt'
-    path = os.path.join(self.features_save_loc, path)
-    ds = torch.load(path)
-    # x, y, z = zip(*ds)
-    x, y = zip(*ds)
-    return torch.stack(x), torch.stack(y)
-  
-  def get_dataloader(self, idx):
-     return [self.data_list[idx-1]]
-  
+    def generate_stack(self, x):
+        stack_list = [x]
+        for i in range(self.seq_length-1):
+            shifted_x = torch.roll(stack_list[-1], 1, dims=0)
+            shifted_x[0] = 0.
+            stack_list.append(shifted_x)
+        stack = torch.stack(stack_list).permute(1,0,2)
+        return stack
+
+    def get_dataset(self, idx):
+        path = f'tensors_{idx}.pt'
+        path = os.path.join(self.features_save_loc, path)
+        ds = torch.load(path)
+        x, y = zip(*ds)
+        return torch.stack(x), torch.stack(y)
+
+    def get_dataloader(self, idx):
+        x, y = self.data_list[idx-1]
+        data_length = len(y)
+        x = self.generate_stack(x)
+        x = x[self.seq_delay:]
+        y = y[:data_length - self.seq_delay]
+        return [(x, y)]
 
   
