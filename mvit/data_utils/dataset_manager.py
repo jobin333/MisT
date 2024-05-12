@@ -358,7 +358,7 @@ class SimpleModelOuptutDatasetManager():
     def get_dataloader(self, idx):
         x, y = self.data_list[idx-1]
         if not self.enable_sequence:
-           return x, y
+           return [(x, y)]
         data_length = len(y)
         x = self.generate_stack(x)
         x = x[self.seq_delay:]
