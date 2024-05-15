@@ -75,7 +75,10 @@ class Trainer():
       with torch.set_grad_enabled(False):
         outputs = self.model(features)
         for metric in self.metrics:
-          metric.update(outputs, labels, phase='test')
+          if hasattr(metric, 'required_x') and metric.required_x:
+            metric.update(outputs, labels, features, phase='test')
+          else:
+            metric.update(outputs, labels, phase='test')
 
 
   def _train_step(self, dataloader):
@@ -101,7 +104,10 @@ class Trainer():
 
       with torch.set_grad_enabled(False):
         for metric in self.metrics:
-          metric.update(outputs, labels, phase='train')
+          if hasattr(metric, 'required_x') and metric.required_x:
+            metric.update(outputs, labels, features, phase='train')
+          else:
+            metric.update(outputs, labels, phase='train')
 
 
   def _train_stage(self, feature_keys=None, label_key=None, progress=True):
