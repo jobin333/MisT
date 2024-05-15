@@ -81,7 +81,8 @@ class Trainer():
           loss = self.loss_fn(outputs, labels)
         for metric in self.metrics:
           if hasattr(metric, 'required_x') and metric.required_x:
-            metric.update(outputs, labels, features, loss, phase='test')
+            metric.update(outputs=outputs, labels=labels, 
+                          features=features, loss=loss, phase='test')
           else:
             metric.update(outputs, labels, phase='test')
 
@@ -113,7 +114,8 @@ class Trainer():
       with torch.set_grad_enabled(False):
         for metric in self.metrics:
           if hasattr(metric, 'required_x') and metric.required_x:
-            metric.update(outputs, labels, features, loss, phase='train')
+            metric.update(outputs=outputs, labels=labels, 
+                          features=features, loss=loss, phase='train')            
           else:
             metric.update(outputs, labels, phase='train')
 
