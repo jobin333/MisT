@@ -14,8 +14,9 @@ class Trainer():
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, num_test_videos=12,
                optimizer_params={'lr':0.001}, print_epoch_time=False, random_train_test=False, 
-               train_vid_first=False):
+               train_vid_first=False, autoencoder=False):
     module_logger.info('Trainer Initializing')
+    self.autoencoder = autoencoder
     self.metrics = metrics
     self.device = device
     self.save_model_param_path = save_model_param_path
@@ -74,9 +75,13 @@ class Trainer():
 
       with torch.set_grad_enabled(False):
         outputs = self.model(features)
+        if self.autoencoder:
+          loss = self.loss_fn(outputs, features)
+        else:
+          loss = self.loss_fn(outputs, labels)
         for metric in self.metrics:
           if hasattr(metric, 'required_x') and metric.required_x:
-            metric.update(outputs, labels, features, phase='test')
+            metric.update(outputs, labels, features, loss, phase='test')
           else:
             metric.update(outputs, labels, phase='test')
 
@@ -98,14 +103,17 @@ class Trainer():
       self.optimizer.zero_grad()
       with torch.set_grad_enabled(True):
         outputs = self.model(features)
-        loss = self.loss_fn(outputs, labels)
+        if self.autoencoder:
+          loss = self.loss_fn(outputs, features)
+        else:
+          loss = self.loss_fn(outputs, labels)
       loss.backward()
       self.optimizer.step()
 
       with torch.set_grad_enabled(False):
         for metric in self.metrics:
           if hasattr(metric, 'required_x') and metric.required_x:
-            metric.update(outputs, labels, features, phase='train')
+            metric.update(outputs, labels, features, loss, phase='train')
           else:
             metric.update(outputs, labels, phase='train')
 
