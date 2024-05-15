@@ -16,7 +16,7 @@ class Trainer():
                optimizer_params={'lr':0.001}, print_epoch_time=False, random_train_test=False, 
                train_vid_first=False, autoencoder=False):
     module_logger.info('Trainer Initializing')
-    self.autoencoder = autoencoder
+    self.autoencoder = autoencoder # Loss function receive output and features
     self.metrics = metrics
     self.device = device
     self.save_model_param_path = save_model_param_path
