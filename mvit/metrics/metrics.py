@@ -1,3 +1,5 @@
+import torch 
+
 class Accuracy():
   def __init__(self):
     self.datapoints_seen = {'train':0, 'test':0}
