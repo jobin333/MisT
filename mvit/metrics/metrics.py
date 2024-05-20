@@ -15,7 +15,7 @@ class Accuracy():
     return self.history_metrics
 
   def __str__(self):
-    return 'Accuracy: {:1.2f}'.format(self.accuracy)
+    return 'Accuracy: {:1.3f}'.format(self.accuracy)
 
   def update(self, pred, target, phase):
     pred = pred.argmax(-1)
