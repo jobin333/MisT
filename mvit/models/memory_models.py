@@ -1,6 +1,6 @@
 import torch
 
-class MultiLevelMemory(torch.nn.Module):
+class MultiLevelMemoryModel(torch.nn.Module):
     '''
     Expecting batch first format (Batch, Sequence, Features)
     Stack of F(z)
