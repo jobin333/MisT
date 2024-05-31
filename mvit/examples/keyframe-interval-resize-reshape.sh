@@ -1,0 +1,1 @@
+ffmpeg -i workflow_video_02.mp4 -vf "scale=-1:240,crop=240:240" -x264-params keyint=25:scenecut=0  m2cai2.mp4
