@@ -2,10 +2,10 @@ import os
 from torch.utils.data import DataLoader
 
 # from mvit.data_utils.global_video_reader import VideoReader
-from global_video_reader import VideoReader
+from mvit.data_utils.global_video_reader import VideoReader
 
 
-class Cholec80DatasetManager():
+class VideoDatasetManager():
   '''
   ####### Example
   dm = Cholec80DatasetManager(data_path, tubelet_size, batch_size)
