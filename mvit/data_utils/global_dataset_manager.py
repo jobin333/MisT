@@ -15,7 +15,6 @@ class VideoDatasetManager():
   def __init__(self, dataset_location, 
                 batch_size,  shuffle=True,
                aproximate_keyframe_interval=10, 
-                 enable_video_reader_accurate_seek=False, ## Accurate seek is not recommended, it will slow you down
                   tubelet_size=25, 
                frame_skips=0, debugging=False, dataset='cholec80', 
                 required_labels = ['phase']
@@ -31,8 +30,6 @@ class VideoDatasetManager():
     self.debugging = debugging # If debugging is enabled the dataloader produce only one tubelet
     self.frame_skips = frame_skips # Intra tubelet skips
     self.shuffle = shuffle
-    self.enable_video_reader_accurate_seek = enable_video_reader_accurate_seek ## It will slow the system
-    self.aproximate_keyframe_interval = aproximate_keyframe_interval
 
   def __len__(self):
     return self.dataset_length
@@ -126,7 +123,7 @@ class VideoDatasetManager():
 
 if __name__ == '__main__':
   dataset_location = '/home/jobin/PhD/Datasets'
-  dm = Cholec80DatasetManager(dataset_location, batch_size=4,  shuffle=True,
+  dm = VideoDatasetManager(dataset_location, batch_size=4,  shuffle=True,
               aproximate_keyframe_interval=10, enable_video_reader_accurate_seek=False,
                 tubelet_size=25, frame_skips=0, debugging=False, dataset='m2cai16', required_labels = ['phase'])
   
