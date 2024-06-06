@@ -1,12 +1,9 @@
-#!/bin/bash
-
 import torchvision
 import torch
 import pandas as pd
 from torchtext.vocab import build_vocab_from_iterator
 import matplotlib.pyplot as plt
 from torchvision.utils import make_grid
-import sys
 
 
 class VideoReader(torch.utils.data.Dataset):
@@ -27,21 +24,14 @@ class VideoReader(torch.utils.data.Dataset):
   cholec80_ds = video_reader.get_dataset()
 
   '''
-  def __init__(self, video_path, timestamp_path, tool_annotations_path=None, tubelet_size=25, 
-               frame_skips=0, debugging=False, dataset='cholec80', 
-                required_labels = ['phase'] ):
-    label_index_col = self.get_label_index_cols(dataset)
-    self.surgical_timestamp_df = pd.read_csv(timestamp_path, sep='\t').set_index(label_index_col)
-    if 'tool' in required_labels:
-      self.surgical_tool_df = pd.read_csv(tool_annotations_path, sep='\t').set_index(label_index_col)
-      self.surgical_tool_vocab_list = list(self.surgical_tool_df.columns) 
-    # self.surgical_phases = list(self.surgical_timestamp_df.Phase.unique())
-    surgical_phases = self.obtain_surg_phases(dataset)
-    self.surgical_phase_vocab = build_vocab_from_iterator([surgical_phases])
+  def __init__(self, video_path, timestamp_path, tubelet_size=25, 
+               frame_skips=0, debugging=False):
+    self.surgical_timestamp_df = pd.read_csv(timestamp_path, sep='\t', skiprows=1, names=['Time', 'Phase'])
+    self.surgical_timestamp_df.set_index('Time', inplace=True)
+    self.surgical_phase_vocab = build_vocab_from_iterator([self.surgical_phases])
     self.surgical_phase_vocab_dict = self.surgical_phase_vocab.vocab.get_stoi() 
     self.reader = torchvision.io.VideoReader(video_path, "video")
     self.frame_skips = frame_skips ## Number of frames interleaved while tubelet creation
-    self.required_labels = required_labels
     self.video_fps = self.reader.get_metadata()['video']['fps'][0]
     self.video_duration = self.reader.get_metadata()['video']['duration'][0]
     self.tubelet_size = tubelet_size
@@ -51,36 +41,9 @@ class VideoReader(torch.utils.data.Dataset):
     self.inter_frame_interval = 0.04 ## 1/fps
     self.seek_offset_time = 0.48 ### for Tool presence
 
-  def obtain_surg_phases(self, dataset):
-    cholec80_surg_phases = ['Preparation', 'CalotTriangleDissection', 'ClippingCutting',
-                        'GallbladderDissection', 'GallbladderPackaging',
-                        'CleaningCoagulation', 'GallbladderRetraction']
-
-    m2cai16_surg_phases = ['TrocarPlacement','Preparation','CalotTriangleDissection'
-                           ,'ClippingCutting','GallbladderDissection','GallbladderPackaging'
-                           ,'CleaningCoagulation','GallbladderRetraction']
-    
-    if dataset == 'cholec80':
-      surg_phases = cholec80_surg_phases
-    elif dataset == 'm2cai16':
-      surg_phases = m2cai16_surg_phases
-    else:
-      raise AttributeError('Only cholec80 and m2cai16 dataset are supported now')
-    return surg_phases
 
 
-  def get_label_index_cols(self, dataset):
-    if dataset == 'cholec80':
-      index_col = 'Frame'
-    elif dataset == 'm2cai16':
-      index_col = 'Time'
-    else:
-      raise AttributeError('Only cholec80 and m2cai16 dataset are supported now')
-    return index_col
-
-
-
-  def _time_to_timestamp_string(self, t):
+  def _video_pts_to_phase_index(self, t):
     '''
     Convert floating point time to Cholec80 timestamp format.
     '''
@@ -90,9 +53,9 @@ class VideoReader(torch.utils.data.Dataset):
     m = round(m)
     h = round(h)
     timestamp_string = '{:02d}:{:02d}:{:05.2f}'.format(h,m,s)
-    surgical_phase = self.surgical_timestamp_df.xs(timestamp_string).Phase
+    surgical_phase = self.surgical_timestamp_df.Phase[timestamp_string]
     surgical_phase_vocab_index = self.surgical_phase_vocab[surgical_phase]
-    return timestamp_string, surgical_phase, surgical_phase_vocab_index
+    return surgical_phase_vocab_index
 
   def _extract_frames_generator(self):
     '''
@@ -114,24 +77,11 @@ class VideoReader(torch.utils.data.Dataset):
       if len(frames) == self.tubelet_size:
         frames = torch.stack(frames)
         frames = frames.permute(1,0,2,3) / 255
-        labels = self.retrieve_labels(timestamps)
+        labels = self.get_phase_tensor(timestamps)
         return frames, labels
 
 
       # tensorflow_frame = tf.image.convert_image_dtype(tensorflow_frame, tf.float32)
-
-  def retrieve_labels(self, timestamps):
-    data = []
-
-    if 'phase' in self.required_labels:
-      phases = self.get_phase_tensor(timestamps)
-      data.append(phases)
-
-    if 'tool' in self.required_labels:
-      tools = self.get_tool_tensor(timestamps)
-      data.append(tools)
-
-    return data
 
 
   def get_phase_tensor(self, timestamps):
@@ -139,23 +89,12 @@ class VideoReader(torch.utils.data.Dataset):
     #### Modification in the code is necessory
     surg_phases = []
     for timestamp in timestamps:
-      _, _, surgical_phase_vocab_index = self._time_to_timestamp_string(timestamp)
+      surgical_phase_vocab_index = self._video_pts_to_phase_index(timestamp)
       surgical_phase_vocab_index = torch.tensor(surgical_phase_vocab_index)
       surg_phases.append(surgical_phase_vocab_index)
     surg_phases = torch.stack(surg_phases)
     return torch.median(surg_phases)
   
-
-  def get_tool_tensor(self, timestamp):
-    current_frame_number = int(timestamp*25) ## Tool annotations in 25 frame interval
-    tool_annotation_frame_number = current_frame_number - ( current_frame_number % 25 ) ## Tool annotations in 25 frame interval
-    tools = self.surgical_tool_df.xs(tool_annotation_frame_number).to_dict()
-    tools = list(tools.values())
-    tools = torch.tensor(tools)
-    return tools 
-  # def __iter__(self):
-  #   ds = self._extract_frames_generator()
-  #   return ds
 
   def __len__(self):
     '''
@@ -223,11 +162,83 @@ class VideoReader(torch.utils.data.Dataset):
     plt.show()
 
     
+
+class Cholec80VideoReader(VideoReader):
+  def __init__(self, video_path, timestamp_path, tubelet_size=25, frame_skips=0, debugging=False):
+   
+    self.surgical_phases  = ['Preparation', 'CalotTriangleDissection', 'ClippingCutting',
+                        'GallbladderDissection', 'GallbladderPackaging',
+                        'CleaningCoagulation', 'GallbladderRetraction']
+    
+   
+    super().__init__(video_path, timestamp_path, tubelet_size, frame_skips, debugging)
+
+
+
+class M2cai16VideoReader(VideoReader):
+  def __init__(self, video_path, timestamp_path, tubelet_size=25, frame_skips=0, debugging=False):
+   
+    self.surgical_phases  = ['TrocarPlacement','Preparation','CalotTriangleDissection'
+                           ,'ClippingCutting','GallbladderDissection','GallbladderPackaging'
+                           ,'CleaningCoagulation','GallbladderRetraction']
+    
+   
+    super().__init__(video_path, timestamp_path, tubelet_size, frame_skips, debugging)
+
+
+class AutoLaparoVideoReader(VideoReader):
+  def __init__(self, video_path, timestamp_path, tubelet_size=25, frame_skips=0, debugging=False):
+   
+    self.surgical_phases  = ['TrocarPlacement','Preparation','CalotTriangleDissection'
+                           ,'ClippingCutting','GallbladderDissection','GallbladderPackaging'
+                           ,'CleaningCoagulation','GallbladderRetraction']
+    
+
+    super().__init__(video_path, timestamp_path, tubelet_size, frame_skips, debugging)
+    self.surgical_phase_vocab_dict = {phase:idx+1 for idx, phase in enumerate(self.surgical_phases)} 
+   
+
+  def _video_pts_to_phase_index(self, t):
+    '''
+    Convert floating point time to Autolapro timestamp index format.
+    '''
+    t = round(t)
+    surgical_phase_index = self.surgical_timestamp_df.Phase[t]
+    return surgical_phase_index
+
     
 if __name__ == '__main__':
-  video_path = sys.argv[1]
-  timestamp_path = sys.argv[2]
-  reader = VideoReader(video_path=video_path, timestamp_path=timestamp_path, dataset='m2cai16')
-  frames, labels = reader[600]
-  print(labels)
-  reader.show(frames)
+  '''
+  The following sample codes can be used to test the above classes.
+  '''
+  pass 
+
+  # ### M2CAI16 Dataset
+  # video_path = '/home/jobin/PhD/Datasets/m2cai16/train_dataset/workflow_video_01.mp4'
+  # timestamp_path = '/home/jobin/PhD/Datasets/m2cai16/train_dataset/workflow_video_01_timestamp.txt'
+  # reader = M2cai16VideoReader(video_path=video_path, timestamp_path=timestamp_path)
+  # frames, labels = reader[600]
+  # print(labels)
+  # reader.show(frames)
+
+
+  ### Cholec80 Dataset
+  # video_path = '/home/jobin/PhD/Datasets/cholec80/videos/video01.mp4'
+  # timestamp_path = '/home/jobin/PhD/Datasets/cholec80/videos/video01-timestamp.txt'
+  # reader = Cholec80VideoReader(video_path=video_path, timestamp_path=timestamp_path)
+  # frames, labels = reader[600]
+  # print(labels)
+  # reader.show(frames)
+
+
+  ### AutoLaparo Dataset
+  # video_path = '/home/jobin/PhD/Datasets/autolaparo/videos/video01.mp4'
+  # timestamp_path = '/home/jobin/PhD/Datasets/autolaparo/labels/label_01.txt'
+  # reader = AutoLaparoVideoReader(video_path=video_path, timestamp_path=timestamp_path)
+  # frames, labels = reader[60]
+  # print(labels)
+  # reader.show(frames)
+
+
+
+
