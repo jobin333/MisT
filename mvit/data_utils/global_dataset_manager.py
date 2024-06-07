@@ -49,15 +49,15 @@ class VideoDatasetManager():
     return video_path, timestamp_path, tool_annotations_path
   
 
-  def get_cholec80_paths(self, video_index):
+  def get_autolaparo_paths(self, video_index):
     tool_folder = 'tool_annotations'
     video_folder = 'videos'
-    timestamp_folder = 'videos'
+    timestamp_folder = 'labels'
 
-    video_path = 'video{:02d}.mp4'.format(video_index)
+    video_path = '{:02d}.mp4'.format(video_index)
     video_path = os.path.join(self.dataset_location, video_folder, video_path)
 
-    timestamp_path = 'video{:02d}-timestamp.txt'.format(video_index)
+    timestamp_path = 'label_{:02d}.txt'.format(video_index)
     timestamp_path = os.path.join(self.dataset_location, timestamp_folder, timestamp_path)
 
     if 'tool' in self.required_labels:
@@ -72,14 +72,16 @@ class VideoDatasetManager():
   def get_m2cai16_paths(self, video_index, training_phase=True):
     tool_annotations_path = None
     if training_phase:
+      folder_name = 'train_dataset'
       video_path = 'workflow_video_{:02d}.mp4'.format(video_index)
       timestamp_path = 'workflow_video_{:02d}_timestamp.txt'.format(video_index)
     else:
+      folder_name = 'train_dataset'
       video_path = 'test_workflow_video_{:02d}.mp4'.format(video_index)
       timestamp_path = 'test_workflow_video_{:02d}_timestamp.txt'.format(video_index)
 
-    video_path = os.path.join(self.dataset_location, video_path)
-    timestamp_path = os.path.join(self.dataset_location, timestamp_path)
+    video_path = os.path.join(self.dataset_location, folder_name, video_path)
+    timestamp_path = os.path.join(self.dataset_location, folder_name, timestamp_path)
 
     if 'tool' in self.required_labels:
       tool_annotations_path = None  ## Not implemented
@@ -121,10 +123,19 @@ class VideoDatasetManager():
   
 
 if __name__ == '__main__':
-  dataset_location = '/home/jobin/PhD/Datasets/Scaled/Cholec80'
-  dm = VideoDatasetManager(dataset_location, batch_size=4,  shuffle=True,
-                tubelet_size=25, frame_skips=0, debugging=False, dataset='cholec80')
+  pass
+  # dataset_location = '/home/jobin/PhD/Datasets/Scaled/Cholec80'
+  # dataset_name = 'cholec80'
+
+  # dataset_location = '/home/jobin/PhD/Datasets/Scaled/M2CAI16'
+  # dataset_name = 'm2cai16'
+
+  # dataset_location = '/home/jobin/PhD/Datasets/Scaled/Autolaparo'
+  # dataset_name = 'autolaparo'
+
+  # dm = VideoDatasetManager(dataset_location, batch_size=4,  shuffle=False,
+  #               tubelet_size=25, frame_skips=0, debugging=False, dataset=dataset_name)
   
-  dl = dm.get_dataloader(1)
-  for (x,y) in dl:
-    print(y)
+  # dl = dm.get_dataloader(1, training_phase=True)
+  # for (x,y) in dl:
+  #   print(y)
