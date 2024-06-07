@@ -2,7 +2,7 @@ import os
 from torch.utils.data import DataLoader
 
 # from mvit.data_utils.global_video_reader import VideoReader
-from mvit.data_utils.global_video_reader import VideoReader
+from mvit.data_utils.global_video_reader import Cholec80VideoReader, M2cai16VideoReader, AutoLaparoVideoReader
 
 
 class VideoDatasetManager():
@@ -12,14 +12,9 @@ class VideoDatasetManager():
   dataloader = dm.get_dataloader()
   '''
 
-  def __init__(self, dataset_location, 
-                batch_size,  shuffle=True,
-               aproximate_keyframe_interval=10, 
-                  tubelet_size=25, 
+  def __init__(self, dataset_location,batch_size,  shuffle=True, tubelet_size=25, 
                frame_skips=0, debugging=False, dataset='cholec80', 
-                required_labels = ['phase']
-                 
-                 ):
+                required_labels = ['phase']  ):
 
     self.dataset = dataset
     self.required_labels = required_labels
@@ -99,33 +94,36 @@ class VideoDatasetManager():
 
     if self.dataset == 'cholec80':
       paths = self.get_cholec80_paths(video_index)
+      video_path, timestamp_path, tool_annotations_path = paths
+      videoreader = Cholec80VideoReader(video_path, timestamp_path,
+                               tubelet_size=25, frame_skips=0, debugging=False)
+
     
     elif self.dataset == 'm2cai16':
       paths = self.get_m2cai16_paths(video_index, training_phase)
+      video_path, timestamp_path, tool_annotations_path = paths
+      videoreader = M2cai16VideoReader(video_path, timestamp_path,
+                               tubelet_size=25, frame_skips=0, debugging=False)
 
     elif self.dataset == 'autolaparo':
       paths = self.get_autolaparo_paths(video_index)
+      video_path, timestamp_path, tool_annotations_path = paths
+      videoreader = AutoLaparoVideoReader(video_path, timestamp_path,
+                               tubelet_size=25, frame_skips=0, debugging=False)
     
     else:
       raise AttributeError('Only cholec80, m2cai16, autolaparo are supported')
 
-    video_path, timestamp_path, tool_annotations_path = paths
 
-    
-    videoreader = VideoReader(video_path, timestamp_path, tool_annotations_path,
-                               tubelet_size=25, frame_skips=0, debugging=False,
-                                 dataset='cholec80', required_labels = ['phase'])
     self.current_video_reader = videoreader  ## For debugging purpose
-
     dataloader = DataLoader(videoreader, batch_size=self.batch_size, shuffle=self.shuffle)
     return dataloader
   
 
 if __name__ == '__main__':
-  dataset_location = '/home/jobin/PhD/Datasets'
+  dataset_location = '/home/jobin/PhD/Datasets/Scaled/Cholec80'
   dm = VideoDatasetManager(dataset_location, batch_size=4,  shuffle=True,
-              aproximate_keyframe_interval=10, enable_video_reader_accurate_seek=False,
-                tubelet_size=25, frame_skips=0, debugging=False, dataset='m2cai16', required_labels = ['phase'])
+                tubelet_size=25, frame_skips=0, debugging=False, dataset='m2cai16')
   
   dl = dm.get_dataloader(1)
   x,y = next(iter(dl))
