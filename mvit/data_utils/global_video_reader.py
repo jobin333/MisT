@@ -145,9 +145,9 @@ class VideoReader(torch.utils.data.Dataset):
         self.last_pts = pts
         if pts == seek_location:
           return self.reader
-    raise Exception(f'Unable to locate the timestamp, only searching 
-                    {self.max_accurate_sequential_search_time} after getting the key frame.
-                    Try to add more key frame to the video for faster processing or set high value to
+    raise Exception(f'Unable to locate the timestamp, only searching \
+                    {self.max_accurate_sequential_search_time} after getting the key frame. \
+                    Try to add more key frame to the video for faster processing or set high value to \
                     "max_accurate_sequential_search_time" parameter')
 
   def get_vocab(self):

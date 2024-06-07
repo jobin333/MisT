@@ -126,6 +126,5 @@ if __name__ == '__main__':
                 tubelet_size=25, frame_skips=0, debugging=False, dataset='cholec80')
   
   dl = dm.get_dataloader(1)
-  x,y = next(iter(dl))
-  print(x.shape)
-  print(y.shape)
+  for (x,y) in dl:
+    print(y)
