@@ -123,7 +123,7 @@ class VideoDatasetManager():
 if __name__ == '__main__':
   dataset_location = '/home/jobin/PhD/Datasets/Scaled/Cholec80'
   dm = VideoDatasetManager(dataset_location, batch_size=4,  shuffle=True,
-                tubelet_size=25, frame_skips=0, debugging=False, dataset='m2cai16')
+                tubelet_size=25, frame_skips=0, debugging=False, dataset='cholec80')
   
   dl = dm.get_dataloader(1)
   x,y = next(iter(dl))

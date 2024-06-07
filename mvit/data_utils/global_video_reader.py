@@ -25,7 +25,7 @@ class VideoReader(torch.utils.data.Dataset):
 
   '''
   def __init__(self, video_path, timestamp_path, tubelet_size=25, 
-               frame_skips=0, debugging=False):
+               frame_skips=0, debugging=False, max_accurate_sequential_search_time=2):
     self.surgical_timestamp_df = pd.read_csv(timestamp_path, sep='\t', skiprows=1, names=['Time', 'Phase'])
     self.surgical_timestamp_df.set_index('Time', inplace=True)
     self.surgical_phase_vocab = build_vocab_from_iterator([self.surgical_phases])
@@ -37,7 +37,7 @@ class VideoReader(torch.utils.data.Dataset):
     self.tubelet_size = tubelet_size
     self.debugging = debugging ## If debugging enabled set dataloader size to zero
     self.last_pts = 0.0
-    self.max_accurate_sequential_search_time = 7.0 ## Sequential search upto 1 second
+    self.max_accurate_sequential_search_time = max_accurate_sequential_search_time ## Sequential search upto 2 second
     self.inter_frame_interval = 0.04 ## 1/fps
     self.seek_offset_time = 0.48 ### for Tool presence
 
@@ -126,7 +126,7 @@ class VideoReader(torch.utils.data.Dataset):
   def accurate_seek(self, seek_location):
     seek_location = seek_location - self.inter_frame_interval  ## Seek to last frame before the required
     seek_location = round(seek_location, 2)
-    max_seek = 25*20 ## fps * max_iner_key_frame_duration
+    max_seek = 25*self.max_accurate_sequential_search_time ## fps * max_iner_key_frame_duration
     search_offset = seek_location - self.last_pts
     # print('Seek location: {}, search_offset:{}'.format(seek_location, search_offset))
     if search_offset < self.max_accurate_sequential_search_time and search_offset >= 0:
@@ -138,13 +138,17 @@ class VideoReader(torch.utils.data.Dataset):
         self.last_pts = pts
 
     else:
+
       self.reader.seek(seek_location, keyframes_only=True)
       for i in range(max_seek):
         _, pts  = next(self.reader).values()
         self.last_pts = pts
         if pts == seek_location:
           return self.reader
-    raise Exception('Unable to locate the timestamp')
+    raise Exception(f'Unable to locate the timestamp, only searching 
+                    {self.max_accurate_sequential_search_time} after getting the key frame.
+                    Try to add more key frame to the video for faster processing or set high value to
+                    "max_accurate_sequential_search_time" parameter')
 
   def get_vocab(self):
     '''
