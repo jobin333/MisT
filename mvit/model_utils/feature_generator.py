@@ -44,9 +44,11 @@ class FeatureGenerator(torch.nn.Module):
     elif model_name == 'Swin3D_T':
       model = torchvision.models.video.swin3d_t(weights=weights) 
       out_features = model.head.in_features  ###  768
-    elif model_name == 'MViT_V2_S':
-      model = torchvision.models.video.mvit_v2_s(weights=weights)
-      out_features = model.head[1].in_features  ###  768
+    # elif model_name == 'MViT_V2_S':
+    #   model = torchvision.models.video.mvit_v2_s(weights=weights)
+    #   out_features = model.head[1].in_features  ###  768
+    else:
+      raise NotImplementedError(f'model name {model_name} is not implemented')
 
     model.head = torch.nn.Identity()
     model = model.to(self.device)
@@ -70,7 +72,7 @@ class FeatureGenerator(torch.nn.Module):
           os.mkdir(model_feature_path)
 
   def save_features(self, dataset_names = ['cholec80', 'm2cai16', 'autolaparo'], 
-                    model_names=['Swin3D_B', 'Swin3D_S', 'Swin3D_T', 'MViT_V2_S'], overwrite=False):
+                    model_names=['Swin3D_B', 'Swin3D_S', 'Swin3D_T'], overwrite=False):
 
     self.create_folders(dataset_names, model_names)
 
@@ -86,24 +88,37 @@ class FeatureGenerator(torch.nn.Module):
     dataset_manager = VideoDatasetManager(dataset_name, dataset_path, self.batch_size, shuffle=False, 
                                           tubelet_size=self.tubelet_size)
     
-    video_count = len(dataset_manager)
-    for i in range(1, video_count+1):
-      save_file_path = os.path.join(self.features_save_location, dataset_name, model_name, str(i)+'.pt')
-      if os.path.exists(save_file_path) and not overwrite :
-        logger.info(f'Feature file {save_file_path} already exist; Skipping feature generation')
-        continue
-      data = []
-      data_loader = dataset_manager.get_dataloader(i)
-      for x,y in data_loader:
-        x = x.to(self.device)
-        feature_x = model(x)
-        for item in zip(feature_x, y):
-            data.append(item)
-        if self.debugging:  ### For debugging of feature generator code
-          break
-
-      torch.save(data, save_file_path)
+    def save_step(training_set=True):
+      video_count = len(dataset_manager)
+      for i in range(1, video_count+1):
+        file_name = str(i) if training_set else 'test_' + str(i)
+        file_name = file_name + '.pt'
+        save_file_path = os.path.join(self.features_save_location, dataset_name, model_name, file_name)
+        if os.path.exists(save_file_path) and not overwrite :
+          logger.info(f'{save_file_path} already exist; Skipping')
+          continue
+        data = []
+        data_loader = dataset_manager.get_dataloader(i)
+        for x,y in data_loader:
+          x = x.to(self.device)
+          feature_x = model(x)
+          for item in zip(feature_x, y):
+              data.append(item)
+          if self.debugging:  ### For debugging of feature generator code
+            break
+        torch.save(data, save_file_path)
+        print('.', end='')
+      print('')
       
+    save_step(True)
+    if dataset_name == 'm2cai16':
+      '''
+      For m2cai16, it is given a seperate dataset for testing purpose.
+      '''
+      dataset_manager.training_set = False
+      save_step(False)
+
+
 
   
 if __name__ == '__main__':
@@ -111,5 +126,5 @@ if __name__ == '__main__':
   dataset_location = '/home/jobin/PhD/Datasets/Scaled/'
   feature_save_location = '/home/jobin/test'
 
-  feature_generator = FeatureGenerator(device, feature_save_location, dataset_location, debugging = True)
+  feature_generator = FeatureGenerator(device, feature_save_location, dataset_location, debugging = True, batch_size=1)
   feature_generator.save_features()
