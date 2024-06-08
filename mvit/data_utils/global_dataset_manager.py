@@ -87,7 +87,7 @@ class VideoDatasetManager():
       video_path = 'workflow_video_{:02d}.mp4'.format(video_index)
       timestamp_path = 'workflow_video_{:02d}_timestamp.txt'.format(video_index)
     else:
-      folder_name = 'train_dataset'
+      folder_name = 'test_dataset'
       video_path = 'test_workflow_video_{:02d}.mp4'.format(video_index)
       timestamp_path = 'test_workflow_video_{:02d}_timestamp.txt'.format(video_index)
 
