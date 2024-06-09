@@ -87,6 +87,7 @@ class FeatureGenerator(torch.nn.Module):
     dataset_path = os.path.join(self.dataset_location, dataset_name)
     dataset_manager = VideoDatasetManager(dataset_name, dataset_path, self.batch_size, shuffle=False, 
                                           tubelet_size=self.tubelet_size)
+    self.current_dataset_manager = dataset_manager
     
     def save_step(training_set=True):
       video_count = len(dataset_manager)
@@ -99,6 +100,7 @@ class FeatureGenerator(torch.nn.Module):
           continue
         data = []
         data_loader = dataset_manager.get_dataloader(i)
+        self.current_data_loader = data_loader
         for x,y in data_loader:
           x = x.to(self.device)
           feature_x = model(x)
