@@ -199,7 +199,7 @@ class M2cai16VideoReader(VideoReader):
     '''
     Convert floating point time to Cholec80 timestamp format.
     '''
-    t = round(t)
+    t = round(t*25)
     surgical_phase = self.surgical_timestamp_df.Phase[t]
     surgical_phase_vocab_index = self.surgical_phase_vocab[surgical_phase]
     return surgical_phase_vocab_index
