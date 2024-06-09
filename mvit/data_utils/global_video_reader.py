@@ -46,16 +46,9 @@ class VideoReader(torch.utils.data.Dataset):
   def _video_pts_to_phase_index(self, t):
     '''
     Convert floating point time to Cholec80 timestamp format.
+    To be implemented by super class
     '''
-    m, s = divmod(t, 60)
-    h, m = divmod(m, 60)
-    s = round(s, 2)
-    m = round(m)
-    h = round(h)
-    timestamp_string = '{:02d}:{:02d}:{:05.2f}'.format(h,m,s)
-    surgical_phase = self.surgical_timestamp_df.Phase[timestamp_string]
-    surgical_phase_vocab_index = self.surgical_phase_vocab[surgical_phase]
-    return surgical_phase_vocab_index
+    raise NotImplementedError('Implement this function in the super class')
 
   def _extract_frames_generator(self):
     '''
@@ -177,6 +170,19 @@ class Cholec80VideoReader(VideoReader):
    
     super().__init__(video_path, timestamp_path, tubelet_size, frame_skips, debugging)
 
+  def _video_pts_to_phase_index(self, t):
+    '''
+    Convert floating point time to Cholec80 timestamp format.
+    '''
+    m, s = divmod(t, 60)
+    h, m = divmod(m, 60)
+    s = round(s, 2)
+    m = round(m)
+    h = round(h)
+    timestamp_string = '{:02d}:{:02d}:{:05.2f}'.format(h,m,s)
+    surgical_phase = self.surgical_timestamp_df.Phase[timestamp_string]
+    surgical_phase_vocab_index = self.surgical_phase_vocab[surgical_phase]
+    return surgical_phase_vocab_index
 
 
 class M2cai16VideoReader(VideoReader):
@@ -188,6 +194,15 @@ class M2cai16VideoReader(VideoReader):
     
    
     super().__init__(video_path, timestamp_path, tubelet_size, frame_skips, debugging)
+
+  def _video_pts_to_phase_index(self, t):
+    '''
+    Convert floating point time to Cholec80 timestamp format.
+    '''
+    t = round(t)
+    surgical_phase = self.surgical_timestamp_df.Phase[t]
+    surgical_phase_vocab_index = self.surgical_phase_vocab[surgical_phase]
+    return surgical_phase_vocab_index
 
 
 class AutoLaparoVideoReader(VideoReader):
