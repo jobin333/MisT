@@ -84,13 +84,24 @@ class VideoReader(torch.utils.data.Dataset):
     '''
     Convert floating point time to Cholec80 timestamp format.
     '''
-    m, s = divmod(t, 60)
-    h, m = divmod(m, 60)
-    s = round(s, 2)
-    m = round(m)
-    h = round(h)
-    timestamp_string = '{:02d}:{:02d}:{:05.2f}'.format(h,m,s)
-    surgical_phase = self.surgical_timestamp_df.xs(timestamp_string).Phase
+    try:
+      m, s = divmod(t, 60)
+      h, m = divmod(m, 60)
+      s = round(s, 2)
+      m = round(m)
+      h = round(h)
+      timestamp_string = '{:02d}:{:02d}:{:05.2f}'.format(h,m,s)
+      surgical_phase = self.surgical_timestamp_df.xs(timestamp_string).Phase
+    except:
+      '''
+      For handling a single error situation in m2cai dataset
+      '''
+      m, s = divmod(t, 60)
+      s = round(s, 2)
+      m = round(m)
+      h = 0
+      timestamp_string = '{:02d}:{:02d}:{:05.2f}'.format(h,m,s)
+      surgical_phase = self.surgical_timestamp_df.xs(timestamp_string).Phase
     surgical_phase_vocab_index = self.surgical_phase_vocab[surgical_phase]
     return timestamp_string, surgical_phase, surgical_phase_vocab_index
 
