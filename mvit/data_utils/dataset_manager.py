@@ -355,10 +355,10 @@ class SimpleModelOuptutDatasetManager():
     def get_dataset(self, idx):
         path = f'tensors_{idx}.pt'
         path = os.path.join(self.features_save_loc, path)
-        ds = torch.load(path, map_location=self.device)
+        ds = torch.load(path, map_location=torch.device('cpu'))
         x, y = zip(*ds)
-        x = torch.stack(x)
-        y = torch.stack(y)
+        x = torch.stack(x).to(self.device)
+        y = torch.stack(y).to(self.device)
         return x,y 
 
     def get_dataloader(self, idx):
