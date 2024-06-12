@@ -14,7 +14,8 @@ class Trainer():
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, num_test_videos=12,
                optimizer_params={'lr':0.001}, print_epoch_time=False, random_train_test=False, 
-               train_vid_first=False, autoencoder=False):
+               train_vid_first=False, autoencoder=False, save_during_training=False,
+               stop_epoch_count=5, model_name = ''):
     module_logger.info('Trainer Initializing')
     self.autoencoder = autoencoder # Loss function receive output and features
     self.metrics = metrics
@@ -35,6 +36,13 @@ class Trainer():
     if train_vid_first:
       self.training_video_index = range(1, 81-num_test_videos)      
       self.validation_video_index = range(81-num_test_videos, 81)
+
+    self.best_metric_value = float('-inf')
+    self.save_during_training = save_during_training
+    self.stop_epoch_count = stop_epoch_count ## If performance is low for consecutive times, end training
+    self.low_performance_rounds = 0
+    self.model_name = model_name
+
 
   
   def get_optimizer(self, optimizer_fn, optimizer_params):
@@ -151,6 +159,8 @@ class Trainer():
     print()
 
   def train(self, epochs, feature_keys=None, label_key=None):
+    print('*'*20)
+    print(f'Training - {self.model_name}')
     for i in range(1, epochs+1):
       last = time.time()
       print('Epoch: {}'.format(i))
@@ -170,6 +180,18 @@ class Trainer():
       time_taken = time.time() - last
       if self.print_epoch_time:
         print('\t\tTime Taken: {:4.2f}'.format(time_taken))
+
+      master_metric_value = self.metrics[0].get_metric_value()
+      if master_metric_value > self.best_metric_value and self.save_during_training:
+        self.save_model()
+      else:
+        self.low_performance_rounds += 1
+
+      if self.low_performance_rounds >= self.stop_epoch_count:
+        module_logger.info('Testing Accuracy is dropping, Exiting the training process')
+        break
+      
+
 
 
 

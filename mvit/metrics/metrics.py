@@ -5,12 +5,18 @@ class Accuracy():
     self.datapoints_seen = {'train':0, 'test':0}
     self.correct_prediction = {'train':0, 'test':0}
     self.history_metrics = {'train':[], 'test':[]}
-    self.accuracy = 0
+    self.accuracy = 0.0
+    self.best_eval_accuracy = 0.0
+
+  def get_metric_value(self):
+    return self.best_eval_accuracy
 
   def compute(self, phase):
     accuracy = self.correct_prediction[phase] / self.datapoints_seen[phase]
     self.history_metrics[phase].append(accuracy)
     self.accuracy = accuracy.item()
+    if phase == 'test':
+      self.best_eval_accuracy = self.accuracy
     self.reset(phase)
 
   def history(self):
