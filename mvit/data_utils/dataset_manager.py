@@ -330,7 +330,6 @@ class ConcatFeatureDatasetManager():
 
 class SimpleModelOuptutDatasetManager():
     def __init__(self,features_save_loc, seq_length=30, seq_delay=None, enable_sequence=True):
-        self.cpu = torch.device('cpu')
         self.enable_sequence = enable_sequence
         self.seq_length = seq_length
         if seq_delay is None:
@@ -352,10 +351,10 @@ class SimpleModelOuptutDatasetManager():
     def get_dataset(self, idx):
         path = f'tensors_{idx}.pt'
         path = os.path.join(self.features_save_loc, path)
-        ds = torch.load(path)
+        ds = torch.load(path, map_location=torch.device('cpu'))
         x, y = zip(*ds)
-        x = torch.stack(x).to(self.cpu)
-        y = torch.stack(y).to(self.cpu)
+        x = torch.stack(x)
+        y = torch.stack(y)
         return x,y 
 
     def get_dataloader(self, idx):
