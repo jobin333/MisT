@@ -78,8 +78,9 @@ class Trainer():
     self.model.eval()
     for features, labels in dataloader:
       # For transfering data to GPU
-      features = features.to(self.device)
-      labels = labels.to(self.device)
+      if self.device != features.device:
+        features = features.to(self.device)
+        labels = labels.to(self.device)
 
       with torch.set_grad_enabled(False):
         outputs = self.model(features)
@@ -104,9 +105,10 @@ class Trainer():
     # Iterate over data.
     for features, labels in dataloader:
 
-      # For transfering data to GPU
-      features = features.to(self.device)
-      labels = labels.to(self.device)
+      # For transfering data to GPU 
+      if self.device != features.device:
+        features = features.to(self.device)
+        labels = labels.to(self.device)
 
       # Training
       self.optimizer.zero_grad()
