@@ -222,7 +222,8 @@ class AutoLaparoVideoReader(VideoReader):
     Convert floating point time to Autolapro timestamp index format.
     '''
     t = round(t)
-    surgical_phase_index = self.surgical_timestamp_df.Phase[t]-1
+    surgical_phase_index = self.surgical_timestamp_df.Phase[t]
+    surgical_phase_index = int(surgical_phase_index) - 1
     return surgical_phase_index
 
     
