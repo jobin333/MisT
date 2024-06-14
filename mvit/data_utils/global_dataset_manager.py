@@ -136,7 +136,7 @@ class VideoDatasetManager():
 
 
 class ModelOuptutDatasetManager():
-    def __init__(self, features_save_loc, model_name, dataset_name, train_file_indices, test_file_indices, seq_length=30, seq_delay=None, device=None, contain_test_set=False):
+    def __init__(self, features_save_loc, model_name, dataset_name, train_file_indices, test_file_indices, seq_length=30, seq_delay=None, device=None, in_test_set=False):
         '''
         If showing memory limitation remove device or provide cpu as device
         '''
@@ -149,15 +149,15 @@ class ModelOuptutDatasetManager():
 
         feature_path = os.path.join(features_save_loc, dataset_name, model_name)
         paths_train = [os.path.join(feature_path, file_name) 
-                       for file_name in self.gen_file_names(train_file_indices, contain_test_set)]
+                       for file_name in self.gen_file_names(train_file_indices, False)]
         paths_test = [os.path.join(feature_path, file_name) 
-                       for file_name in self.gen_file_names(test_file_indices, contain_test_set)]
+                       for file_name in self.gen_file_names(test_file_indices, in_test_set)]
         self.data_list_train = [self.get_dataset(path)for path in paths_train]
         self.data_list_test = [self.get_dataset(path)for path in paths_test]
 
 
-    def gen_file_names(self, indices, contain_test_set=False):
-      if contain_test_set:
+    def gen_file_names(self, indices, in_test_set=False):
+      if in_test_set:
         file_names = [f'test_{idx}.pt' for idx in indices]
       else:
         file_names = [f'{idx}.pt' for idx in indices]
