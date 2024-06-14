@@ -136,7 +136,7 @@ class VideoDatasetManager():
 
 
 class ModelOuptutDatasetManager():
-    def __init__(self, features_save_loc, model_name, dataset_name, train_file_indices, test_file_indices, seq_length=30, seq_delay=None, enable_sequence=True, device=None, in_test_set=False):
+    def __init__(self, features_save_loc, model_name, dataset_name, train_file_indices, test_file_indices, seq_length=30, seq_delay=None, device=None, in_test_set=False):
         '''
         If showing memory limitation remove device or provide cpu as device
         '''
@@ -182,15 +182,18 @@ class ModelOuptutDatasetManager():
         y = torch.stack(y).to(self.device)
         return x,y 
 
-    def get_dataloader(self, idx):
-        x, y = self.data_list_train[idx-1]
-        if not self.enable_sequence:
-           return [(x, y)]
-        data_length = len(y)
-        x = self.generate_stack(x)
-        x = x[self.seq_delay:]
-        y = y[:data_length - self.seq_delay]
-        return [(x, y)]
+    def get_dataloaders(self, training=True):
+        if training:
+          data_list = self.data_list_train
+        else:
+          data_list = self.data_list_test
+          
+        for x, y in data_list:
+          data_length = len(y)
+          x = self.generate_stack(x)
+          x = x[self.seq_delay:]
+          y = y[:data_length - self.seq_delay]
+          yield [(x, y)]
 
   
 
