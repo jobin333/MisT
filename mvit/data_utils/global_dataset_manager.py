@@ -174,7 +174,6 @@ class ModelOuptutDatasetManager():
         return stack
 
     def get_dataset(self, path):
-        path = os.path.join(self.feature_path, path)
         ds = torch.load(path, map_location=torch.device('cpu'))
         x, y = zip(*ds)
         x = torch.stack(x).to(self.device)
