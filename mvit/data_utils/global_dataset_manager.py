@@ -187,10 +187,10 @@ class ModelOuptutDatasetManager():
           data_list = self.data_list_test
 
         for x, y in data_list:
-          # data_length = len(y)
-          # x = self.generate_stack(x)
-          # x = x[self.seq_delay:]
-          # y = y[:data_length - self.seq_delay]
+          data_length = len(y)
+          x = self.generate_stack(x)
+          x = x[self.seq_delay:]
+          y = y[:data_length - self.seq_delay]
           yield [(x, y)]
 
   
