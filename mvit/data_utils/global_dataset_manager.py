@@ -141,7 +141,6 @@ class ModelOuptutDatasetManager():
         If showing memory limitation remove device or provide cpu as device
         '''
         self.device = device if device is not None else torch.device('cpu') 
-        self.enable_sequence = enable_sequence
         self.seq_length = seq_length
         if seq_delay is None:
             self.seq_delay = self.seq_length // 2
@@ -187,7 +186,7 @@ class ModelOuptutDatasetManager():
           data_list = self.data_list_train
         else:
           data_list = self.data_list_test
-          
+
         for x, y in data_list:
           data_length = len(y)
           x = self.generate_stack(x)
