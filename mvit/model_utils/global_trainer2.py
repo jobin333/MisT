@@ -165,8 +165,9 @@ class Trainer():
         print('\t\tTime Taken: {:4.2f}'.format(time_taken))
 
       master_metric_value = self.metrics[0].get_metric_value()
-      if master_metric_value > self.best_metric_value and self.save_during_training:
-        self.save_model()
+      if master_metric_value > self.best_metric_value:
+        if  self.save_during_training:
+          self.save_model()
       else:
         self.low_performance_rounds += 1
 
