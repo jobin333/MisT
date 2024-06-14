@@ -1,4 +1,5 @@
 import os
+import torch
 from torch.utils.data import DataLoader
 
 # from mvit.data_utils.global_video_reader import VideoReader
@@ -132,6 +133,67 @@ class VideoDatasetManager():
     dataloader = DataLoader(videoreader, batch_size=self.batch_size, shuffle=self.shuffle)
     return dataloader
   
+
+
+class ModelOuptutDatasetManager():
+    def __init__(self, features_save_loc, model_name, dataset_name, train_file_indices, test_file_indices, seq_length=30, seq_delay=None, enable_sequence=True, device=None, in_test_set=False):
+        '''
+        If showing memory limitation remove device or provide cpu as device
+        '''
+        self.device = device if device is not None else torch.device('cpu') 
+        self.enable_sequence = enable_sequence
+        self.seq_length = seq_length
+        if seq_delay is None:
+            self.seq_delay = self.seq_length // 2
+        else:
+            self.seq_delay = seq_delay
+
+        feature_path = os.path.join(features_save_loc, dataset_name, model_name)
+        paths_train = [os.path.join(feature_path, file_name) 
+                       for file_name in self.gen_file_names(train_file_indices, in_test_set)]
+        paths_test = [os.path.join(feature_path, file_name) 
+                       for file_name in self.gen_file_names(test_file_indices, in_test_set)]
+        self.data_list_train = [self.get_dataset(path)for path in paths_train]
+        self.data_list_test = [self.get_dataset(path)for path in paths_test]
+
+
+    def gen_file_names(indices, in_test_set=False):
+      if in_test_set:
+        file_names = [f'test_{idx}.pt' for idx in indices]
+      else:
+        file_names = [f'{idx}.pt' for idx in indices]
+      return file_names
+      
+
+    def generate_stack(self, x):
+        stack_list = [x]
+        for i in range(self.seq_length-1):
+            shifted_x = torch.roll(stack_list[-1], 1, dims=0)
+            shifted_x[0] = 0.
+            stack_list.append(shifted_x)
+        stack = torch.stack(stack_list).permute(1,0,2)
+        return stack
+
+    def get_dataset(self, path):
+        path = os.path.join(self.feature_path, path)
+        ds = torch.load(path, map_location=torch.device('cpu'))
+        x, y = zip(*ds)
+        x = torch.stack(x).to(self.device)
+        y = torch.stack(y).to(self.device)
+        return x,y 
+
+    def get_dataloader(self, idx):
+        x, y = self.data_list_train[idx-1]
+        if not self.enable_sequence:
+           return [(x, y)]
+        data_length = len(y)
+        x = self.generate_stack(x)
+        x = x[self.seq_delay:]
+        y = y[:data_length - self.seq_delay]
+        return [(x, y)]
+
+  
+
 
 if __name__ == '__main__':
   pass
