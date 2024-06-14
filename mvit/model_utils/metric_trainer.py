@@ -130,7 +130,7 @@ class Trainer():
             metric.update(outputs, labels, phase='train')
 
 
-  def _train_stage(self, feature_keys=None, label_key=None, progress=True):
+  def _train_stage(self, feature_keys=None, label_key=None, progress=True, training=True):
     '''
     Function to train entire dataset one epoch
     '''
@@ -145,7 +145,7 @@ class Trainer():
         print('.', end='')
     print()
 
-  def _test_stage(self, feature_keys=None, label_key=None, progress=True):
+  def _test_stage(self, feature_keys=None, label_key=None, progress=True, training=False):
     '''
     Function to train entire dataset one epoch
     '''
