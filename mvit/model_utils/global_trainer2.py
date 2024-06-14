@@ -126,7 +126,7 @@ class Trainer():
     '''
 
     for dataloader in self.dataloaders_train:
-      self._test_step(dataloader)
+      self._train_step(dataloader)
       if progress:
         print('.', end='')
     print()
