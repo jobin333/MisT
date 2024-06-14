@@ -166,6 +166,7 @@ class Trainer():
 
       master_metric_value = self.metrics[0].get_metric_value()
       if master_metric_value > self.best_metric_value:
+        self.best_metric_value = master_metric_value
         if  self.save_during_training:
           self.save_model()
       else:
