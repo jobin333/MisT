@@ -10,7 +10,7 @@ class Trainer():
   '''
   Super class implimenting basic training functionality
   '''
-  def __init__(self, dataloaders_train, dataloaders_test, device, metrics, model,
+  def __init__(self, dataset_manager, device, metrics, model,
                save_model_param_path=None, loss_fn=torch.nn.CrossEntropyLoss(),
                lr_scheduler=None, optimizer_fn=torch.optim.Adam, 
                optimizer_params={'lr':0.001}, print_epoch_time=False, 
@@ -21,8 +21,7 @@ class Trainer():
     self.metrics = metrics
     self.device = device
     self.save_model_param_path = save_model_param_path
-    self.dataloaders_train = dataloaders_train
-    self.dataloaders_test = dataloaders_test
+    self.dataset_manager = dataset_manager
     self.loss_fn = loss_fn
     self.print_epoch_time = print_epoch_time
     self.model = model.to(device)
@@ -120,23 +119,23 @@ class Trainer():
             metric.update(outputs, labels, phase='train')
 
 
-  def _train_stage(self, progress=True, training=True):
+  def _train_stage(self, progress=True):
     '''
     Function to train entire dataset one epoch
     '''
 
-    for dataloader in self.dataloaders_train:
+    for dataloader in self.dataset_manager.get_dataloaders(training=True):
       self._train_step(dataloader)
       if progress:
         print('.', end='')
     print()
 
-  def _test_stage(self, progress=True, training=False):
+  def _test_stage(self, progress=True):
     '''
     Function to train entire dataset one epoch
     '''
 
-    for dataloader in self.dataloaders_test:
+    for dataloader in self.dataset_manager.get_dataloaders(training=False):
       self._test_step(dataloader)
       if progress:
         print('.', end='')
