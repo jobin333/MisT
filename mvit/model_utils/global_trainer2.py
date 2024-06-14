@@ -31,6 +31,7 @@ class Trainer():
     self.stop_epoch_count = stop_epoch_count ## If performance is low for consecutive times, end training
     self.low_performance_rounds = 0
     self.model_name = model_name
+    self.best_model = None
 
 
   
@@ -42,13 +43,16 @@ class Trainer():
         trainable_params.append(param)
     return optimizer_fn(trainable_params, **optimizer_params)
 
-  def save_model(self):
+  def save_model(self, save_best_model=True):
     '''
     Saving model parameters in self.save_model_param_path
     '''
     module_logger.info('Saving model')
     print('Saving Model to {}'.format(self.save_model_param_path))
-    torch.save(self.model.state_dict(), self.save_model_param_path)
+    if save_best_model:
+      torch.save(self.best_model, self.save_model_param_path)
+    else:
+      torch.save(self.model.state_dict(), self.save_model_param_path)
 
   def load_model(self):
     '''
@@ -167,8 +171,7 @@ class Trainer():
       master_metric_value = self.metrics[0].get_metric_value()
       if master_metric_value > self.best_metric_value:
         self.best_metric_value = master_metric_value
-        if  self.save_during_training:
-          self.save_model()
+        self.best_model = self.model.state_dict().copy()
       else:
         self.low_performance_rounds += 1
 
