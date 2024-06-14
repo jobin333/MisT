@@ -156,7 +156,7 @@ class ModelOuptutDatasetManager():
         self.data_list_test = [self.get_dataset(path)for path in paths_test]
 
 
-    def gen_file_names(indices, in_test_set=False):
+    def gen_file_names(self, indices, in_test_set=False):
       if in_test_set:
         file_names = [f'test_{idx}.pt' for idx in indices]
       else:
