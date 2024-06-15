@@ -178,6 +178,7 @@ class Trainer():
       if self.low_performance_rounds >= self.stop_epoch_count:
         module_logger.info('Testing Accuracy is dropping, Exiting the training process')
         break
+    return self.best_metric_value
       
 
 
