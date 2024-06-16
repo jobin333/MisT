@@ -7,7 +7,6 @@ from mvit.models.linear_models import SimpleLinearModel
 from mvit.model_utils.global_trainer2 import Trainer 
 from mvit.data_utils.global_dataset_manager import ModelOuptutDatasetManager
 from mvit.metrics.metrics import Accuracy
-from mvit.configs.trainer_config import config
 
 
 
@@ -108,8 +107,8 @@ class TrainerConfigurationGenerator():
         torch.save(self._config, self.config_file_path)
         
         
-if __name__ == '__main__':
-  dataset_name = 'cholec80'
-  feature_model_name = 'Swin3D_S'
-  config  = TrainerConfigurationGenerator(dataset_name, feature_model_name, config)
-  config.save()
+# if __name__ == '__main__':
+#   dataset_name = 'cholec80'
+#   feature_model_name = 'Swin3D_S'
+#   config  = TrainerConfigurationGenerator(dataset_name, feature_model_name, config)
+#   config.save()
