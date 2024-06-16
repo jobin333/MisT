@@ -7,6 +7,7 @@ class Accuracy():
     self.history_metrics = {'train':[], 'test':[]}
     self.accuracy = 0.0
     self.best_eval_accuracy = 0.0
+    self.name = 'accuracy'
 
   def get_metric_value(self):
     return self.best_eval_accuracy
