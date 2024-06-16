@@ -9,7 +9,7 @@ class Accuracy():
     self.best_eval_accuracy = 0.0
     self.name = 'accuracy'
 
-  def get_metric_value(self):
+  def value(self):
     return self.best_eval_accuracy
 
   def compute(self, phase):

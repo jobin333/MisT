@@ -168,7 +168,7 @@ class Trainer():
       if self.print_epoch_time:
         print('\t\tTime Taken: {:4.2f}'.format(time_taken))
 
-      master_metric_value = self.metrics[0].get_metric_value()
+      master_metric_value = self.metrics[0].value()
       if master_metric_value > self.best_metric_value:
         self.best_metric_value = master_metric_value
         self.best_model = self.model.state_dict().copy()
