@@ -88,6 +88,7 @@ class APRFSJC():
     
     self.metrics = {'train':train_dict, 'test': test_dict }
     self.last_phase = None
+    self.name = 'metrics'
 
 
   def update(self, pred, target, phase):
@@ -131,8 +132,9 @@ class APRFSJC():
     
   
   def __str__(self):
-    data = self.metrics[self.last_phase]
-    return str(data)
+    accuracy = self.metrics[self.last_phase]['accuracy']
+    accuracy = '{:2.2f}'.format(accuracy * 100)
+    return accuracy
   
   def reset(self, phase):
     self.history[phase]['yt'] = []
