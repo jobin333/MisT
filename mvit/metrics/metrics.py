@@ -93,6 +93,10 @@ class APRFSJC():
   def update(self, pred, target, phase):
     yt = target
     yp = pred.argmax(-1)
+
+    yt = yt.cpu().detach()
+    yp = yp.cpu().detach()
+    
     self.history[phase]['yt'].append(yt)
     self.history[phase]['yp'].append(yp)
 
