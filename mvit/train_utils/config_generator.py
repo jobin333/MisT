@@ -136,7 +136,9 @@ class TrainerConfigurationGenerator():
             'out_features': out_features,
             'flm_save_param_path': flm_save_param_path,
             'slm_save_param_path': slm_save_param_path,
-            'config_file_path' : config_file_path
+            'config_file_path' : config_file_path,
+            'slm_training_completed': False,
+            'flm_training_completed': False
 
         }
         
