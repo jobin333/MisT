@@ -1,5 +1,8 @@
 import torch 
 
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import jaccard_score, accuracy_score
+
 class Accuracy():
   def __init__(self):
     self.datapoints_seen = {'train':0, 'test':0}
@@ -37,48 +40,104 @@ class Accuracy():
     self.correct_prediction[phase] = 0
 
 
-
-
-
-### On Development - printing class wise accuracy
-class Accuracy2():
+class ConfusionMatrix():
   def __init__(self):
-    self.datapoints_seen = {'train':0, 'test':0}
-    self.correct_prediction = {'train':0, 'test':0}
-    self.history_metrics = {'train':[], 'test':[]}
-    self.correct_prediction_list = {'train':[], 'test':[]}
-    self.datapoints_seen_list = {'train':[], 'test':[]}
-    self.accuracy = 0
-
-  def _gen_class_correct_prediction(predicted, correct, class_idx):
-    class_items = correct == class_idx
-    predicted_items = predicted == class_idx
-    class_count = sum(class_items)
-    correct_count = sum(torch.logical_and(class_items, predicted_items))
-    return class_count, correct_count
-
-  def compute(self, phase):
-    accuracy = self.correct_prediction[phase] / self.datapoints_seen[phase]
-    self.history_metrics[phase].append(accuracy)
-    self.accuracy = accuracy.item()
-    self.reset(phase)
-
-  def history(self):
-    return self.history_metrics
-
-  def __str__(self):
-    str1 = 'Overall Accuracy: {:1.2f}'.format(self.accuracy)
-    str2 = 'Phase Accuracy: {:1.2f}'.format(self.accuracy)
-    return f'{str1}\n{str2}'
+    self.history = {'train':{yt:torch.tensor([]), yp:torch.tensor([])}, 
+                    'test':{yt:torch.tensor([]), yp:torch.tensor([])}}
+    self.metrics = {'train': None, 'test':None}
+    self.last_phase = None
 
   def update(self, pred, target, phase):
-    pred = pred.argmax(-1)
-    correct = sum(pred == target)
-    self.correct_prediction[phase] += correct
-    self.datapoints_seen[phase] += len(pred)
+    yt = target
+    yp = pred.argmax(-1)
+    self.history[phase]['yt'] = torch.cat( (self.history[phase]['yt'], yt) )
+    self.history[phase]['yp'] = torch.cat( (self.history[phase]['yp'], yp) )
 
+  def compute(self, phase):
+    self.last_phase = phase
+    yt = self.history[phase]['yt']
+    yp = self.history[phase]['yp']
+    self.metrics[phase] = confusion_matrix(yt, yp)
+    self.reset()
+    return self.metrics[phase]
+  
+  def __str__(self):
+    data = self.metrics[self.last_phase]
+    return str(data)
+  
   def reset(self, phase):
-    self.datapoints_seen[phase] = 0
-    self.correct_prediction[phase] = 0
-    self.datapoints_seen_list[phase] = []
-    self.correct_prediction_list[phase] = []
+    self.history[phase]['yt'] = torch.tensor([])
+    self.history[phase]['yp'] = torch.tensor([])
+
+
+
+class APRFSJC():
+  '''
+  Generate 'accuracy', 'precision', 'recall', 'fscore', 'support', 'jaccard', 'confusion'
+  It needs sklearn library
+  Object.value() will return the accuracy of last test phase
+  '''
+  def __init__(self):
+    metrics_names = ['accuracy', 'precision', 'recall', 'fscore', 'support',
+                      'jaccard', 'confusion']
+    train_dict = {name : None for name in metrics_names}
+    test_dict = {name : None for name in metrics_names}
+  
+    self.history = {'train':{'yt':torch.tensor([]), 'yp':torch.tensor([])}, 
+                    'test':{'yt':torch.tensor([]), 'yp':torch.tensor([])}}
+    self.metrics = {'train':train_dict, 'test': test_dict }
+    self.last_phase = None
+
+
+  def update(self, pred, target, phase):
+    yt = target
+    yp = pred.argmax(-1)
+    self.history[phase]['yt'] = torch.cat( (self.history[phase]['yt'], yt) )
+    self.history[phase]['yp'] = torch.cat( (self.history[phase]['yp'], yp) )
+
+  def compute(self, phase):
+    self.last_phase = phase
+    yt = self.history[phase]['yt']
+    yp = self.history[phase]['yp']
+
+    confusion = confusion_matrix(yt, yp)
+    precision, recall, fscore, support = precision_recall_fscore_support(yt, yp)
+    jaccard = jaccard_score(yt, yp, average=None)
+    accuracy = accuracy_score(yt, yp)
+
+    self.metrics[phase]['precision'] = precision
+    self.metrics[phase]['recall'] = recall
+    self.metrics[phase]['fscore'] = fscore
+    self.metrics[phase]['support'] = support
+    self.metrics[phase]['jaccard'] = jaccard
+    self.metrics[phase]['confusion'] = confusion
+    self.metrics[phase]['accuracy'] = accuracy
+
+    self.reset(phase)
+    return accuracy
+    
+  
+  def __str__(self):
+    data = self.metrics[self.last_phase]
+    return str(data)
+  
+  def reset(self, phase):
+    self.history[phase]['yt'] = torch.tensor([])
+    self.history[phase]['yp'] = torch.tensor([])
+
+
+  def value(self):
+    return self.metrics['test']['accuracy']
+
+
+
+if __name__ == '__main__':
+  metric = APRFSJC()
+  for i in range(100):
+    yt = torch.randint(0, 6, (10,))
+    yp = torch.randn((10, 7))  
+    metric.update(yp, yt, phase='test')
+  metric.compute(phase='test')
+  print(metric)
+  print(metric.value())
+
