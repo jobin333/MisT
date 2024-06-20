@@ -14,11 +14,11 @@ class TrainingManager():
     
   def __init__(self, config_folder, metrics, device, 
                flm_model_class=SimpleLinearModel, 
-               slm_model_class=MultiLevelMemoryModel):
+               slm_model_class=MultiLevelMemoryModel, retrain=False):
     self.config_files = self.get_config_files(config_folder)
     self.device = device
     self.metrics = metrics
-
+    self.retrain = retrain
     self.flm_model_class = flm_model_class
     self.slm_model_class = slm_model_class
 
@@ -29,6 +29,10 @@ class TrainingManager():
 
   def train_flm(self, config_file):
     cfg = TrainerConfigurationGenerator(config_file)
+
+    if not self.retrain and cfg.flm_training_completed:
+      print('Training already completed exiting')
+      return
     
     dataset_manager = ModelOuptutDatasetManager(cfg.feature_folder, cfg.feature_model_name, cfg.dataset_name,
                                                 cfg.train_file_indices, cfg.test_file_indices, seq_length=cfg.flm_seq_length, 
@@ -48,13 +52,16 @@ class TrainingManager():
       config_name = 'flm_' + metric.name 
       config_value = metric.value()
       cfg.__setattr__(config_name, config_value)
-        
+    cfg.__setattr__('flm_training_completed', True)
     trainer.save_model()
     cfg.save()
         
     
   def train_slm(self, config_file):
     cfg = TrainerConfigurationGenerator(config_file)
+    if not self.retrain and cfg.slm_training_completed:
+      print('Training already completed exiting')
+      return
     
     dataset_manager = ModelOuptutDatasetManager(cfg.feature_folder, cfg.feature_model_name, cfg.dataset_name,
                                                 cfg.train_file_indices, cfg.test_file_indices,  seq_length=cfg.flm_seq_length, 
@@ -81,7 +88,8 @@ class TrainingManager():
         config_name = 'slm_' + metric.name 
         config_value = metric.value()
         cfg.__setattr__(config_name, config_value)
-        
+    
+    cfg.__setattr__('slm_training_completed', True)
     trainer.save_model()
     cfg.save()
     
