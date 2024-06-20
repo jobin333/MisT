@@ -77,7 +77,7 @@ class APRFSJC():
   It needs sklearn library
   Object.value() will return the accuracy of last test phase
   '''
-  def __init__(self):
+  def __init__(self, warn_for=('precision', 'recall', 'f-score'), zero_division='warn'):
     metrics_names = ['accuracy', 'precision', 'recall', 'fscore', 'support',
                       'jaccard', 'confusion', 'yt', 'yp']
     train_dict = {name : None for name in metrics_names}
@@ -89,6 +89,8 @@ class APRFSJC():
     self.metrics = {'train':train_dict, 'test': test_dict }
     self.last_phase = None
     self.name = 'metrics'
+    self.warn_for = warn_for
+    self.zero_division = zero_division
 
 
   def update(self, pred, target, phase):
@@ -113,7 +115,8 @@ class APRFSJC():
     yp = torch.cat(self.history[phase]['yp'])
 
     confusion = confusion_matrix(yt, yp)
-    precision, recall, fscore, support = precision_recall_fscore_support(yt, yp)
+    precision, recall, fscore, support = precision_recall_fscore_support(yt, yp, warn_for=self.warn_for, 
+                                                                         zero_division=self.zero_division)
     jaccard = jaccard_score(yt, yp, average=None)
     accuracy = accuracy_score(yt, yp)
 
