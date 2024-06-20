@@ -12,10 +12,15 @@ from mvit.models.memory_models import MultiLevelMemoryModel
 
 class TrainingManager():
     
-  def __init__(self, config_folder, metrics, device):
+  def __init__(self, config_folder, metrics, device, 
+               flm_model_class=SimpleLinearModel, 
+               slm_model_class=MultiLevelMemoryModel):
     self.config_files = self.get_config_files(config_folder)
     self.device = device
     self.metrics = metrics
+
+    self.flm_model_class = flm_model_class
+    self.slm_model_class = slm_model_class
 
   def get_config_files(self, config_folder):
     config_path_re = os.path.join(config_folder, '*pt.config')
@@ -28,8 +33,8 @@ class TrainingManager():
     dataset_manager = ModelOuptutDatasetManager(cfg.feature_folder, cfg.feature_model_name, cfg.dataset_name,
                                                 cfg.train_file_indices, cfg.test_file_indices, seq_length=cfg.flm_seq_length, 
                                                 device=self.device, in_test_set=cfg.contain_test_set)
-
-    flm = SimpleLinearModel(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
+    
+    flm = self.flm_model_class(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
     
     trainer = Trainer(dataset_manager, self.device, self.metrics, flm,
                    save_model_param_path=cfg.flm_save_param_path,
@@ -58,7 +63,7 @@ class TrainingManager():
     flm = SimpleLinearModel(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
     flm.load_state_dict( torch.load(cfg.flm_save_param_path) )
     
-    slm = MultiLevelMemoryModel(predictor_model=flm, stack_length=cfg.slm_stack_length,
+    slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
                                 roll_count=cfg.slm_roll_count, number_path=cfg.slm_number_path,
                                 path_multiplier=cfg.slm_path_multiplier, dropout=cfg.slm_dropout, 
                                 num_surg_phase=cfg.out_features)
