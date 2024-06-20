@@ -4,6 +4,7 @@ import os
 
 
 from mvit.data_utils.global_dataset_manager import VideoDatasetManager
+from mvit.metrics.metrics import APRFSJC
 
 
 from mvit.logging_utils.logger import logger

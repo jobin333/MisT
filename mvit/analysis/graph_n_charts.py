@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib import pyplot as plt 
+import torch
 
 
 def create_phase_color_map():
@@ -38,6 +39,8 @@ def generate_phase_plot(y, linewidth=20, color='white', cmap='copper'):
   plt.show()
 
 
-cmap = create_phase_color_map()
-generate_phase_plot(y, cmap=cmap)
+if __name__ == '__main__':
+  y = torch.randint(1, 6, (100,100))
+  cmap = create_phase_color_map()
+  generate_phase_plot(y, cmap=cmap)
 

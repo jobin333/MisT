@@ -79,12 +79,13 @@ class APRFSJC():
   '''
   def __init__(self):
     metrics_names = ['accuracy', 'precision', 'recall', 'fscore', 'support',
-                      'jaccard', 'confusion']
+                      'jaccard', 'confusion', 'yt', 'yp']
     train_dict = {name : None for name in metrics_names}
     test_dict = {name : None for name in metrics_names}
   
-    self.history = {'train':{'yt':torch.tensor([]), 'yp':torch.tensor([])}, 
-                    'test':{'yt':torch.tensor([]), 'yp':torch.tensor([])}}
+    self.history = {'train':{'yt':[], 'yp':[]}, 
+                    'test':{'yt':[], 'yp':[]}}
+    
     self.metrics = {'train':train_dict, 'test': test_dict }
     self.last_phase = None
 
@@ -92,13 +93,17 @@ class APRFSJC():
   def update(self, pred, target, phase):
     yt = target
     yp = pred.argmax(-1)
-    self.history[phase]['yt'] = torch.cat( (self.history[phase]['yt'], yt) )
-    self.history[phase]['yp'] = torch.cat( (self.history[phase]['yp'], yp) )
+    self.history[phase]['yt'].append(yt)
+    self.history[phase]['yp'].append(yp)
 
   def compute(self, phase):
     self.last_phase = phase
-    yt = self.history[phase]['yt']
-    yp = self.history[phase]['yp']
+    if phase == 'test':
+      test_yt = self.history[phase]['yt']
+      test_yp = self.history[phase]['yp']
+
+    yt = torch.cat(self.history[phase]['yt'])
+    yp = torch.cat(self.history[phase]['yp'])
 
     confusion = confusion_matrix(yt, yp)
     precision, recall, fscore, support = precision_recall_fscore_support(yt, yp)
@@ -112,6 +117,8 @@ class APRFSJC():
     self.metrics[phase]['jaccard'] = jaccard
     self.metrics[phase]['confusion'] = confusion
     self.metrics[phase]['accuracy'] = accuracy
+    self.metrics[phase]['yt'] = test_yt
+    self.metrics[phase]['yp'] = test_yp
 
     self.reset(phase)
     return accuracy
@@ -122,8 +129,8 @@ class APRFSJC():
     return str(data)
   
   def reset(self, phase):
-    self.history[phase]['yt'] = torch.tensor([])
-    self.history[phase]['yp'] = torch.tensor([])
+    self.history[phase]['yt'] = []
+    self.history[phase]['yp'] = []
 
 
   def value(self):
