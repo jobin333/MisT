@@ -105,6 +105,8 @@ class APRFSJC():
     if phase == 'test':
       test_yt = self.history[phase]['yt']
       test_yp = self.history[phase]['yp']
+    else:
+      test_yt = test_yp = None
 
     yt = torch.cat(self.history[phase]['yt'])
     yp = torch.cat(self.history[phase]['yp'])
