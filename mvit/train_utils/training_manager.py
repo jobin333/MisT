@@ -101,7 +101,7 @@ class TrainingManager():
     
   def train(self, enable_flm_train=True, enable_slm_train=True):
     for config_file in self.config_files:
-      module_logger.info(f'Training using config file {config_file}')
+      print(f'Training using config file {config_file}')
       if enable_flm_train:
         self.train_flm(config_file)
       if enable_slm_train:
