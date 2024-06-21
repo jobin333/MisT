@@ -143,9 +143,11 @@ class APRFSJC():
     self.history[phase]['yt'] = []
     self.history[phase]['yp'] = []
 
-
   def value(self):
     return self.metrics['test']['accuracy']
+  
+  def details(self):
+    return self.metrics['test']
 
 
 

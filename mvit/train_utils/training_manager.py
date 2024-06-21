@@ -85,7 +85,11 @@ class TrainingManager():
 
     
     for metric in  self.metrics:
-        config_name = 'slm_' + metric.name 
+        if hasattr(metric, 'details'):
+          config_name = 'slm_' + metric.name + '_details'
+          config_value = metric.details()
+          cfg.__setattr__(config_name, config_value)
+        config_name = 'slm_' + metric.name + '_value'
         config_value = metric.value()
         cfg.__setattr__(config_name, config_value)
     
