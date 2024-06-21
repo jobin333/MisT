@@ -69,7 +69,7 @@ class TrainingManager():
                                                 cfg.train_file_indices, cfg.test_file_indices,  seq_length=cfg.flm_seq_length, 
                                                 device=self.device, in_test_set=cfg.contain_test_set)
 
-    flm = SimpleLinearModel(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
+    flm = self.flm_model_class(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
     flm.load_state_dict( torch.load(cfg.flm_save_param_path) )
     
     slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
