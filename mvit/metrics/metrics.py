@@ -69,6 +69,9 @@ class ConfusionMatrix():
     self.history[phase]['yt'] = torch.tensor([])
     self.history[phase]['yp'] = torch.tensor([])
 
+  def store(self):
+    pass
+
 
 
 class APRFSJC():
@@ -91,6 +94,8 @@ class APRFSJC():
     self.name = 'metrics'
     self.warn_for = warn_for
     self.zero_division = zero_division
+    self.best_metrics_details = None
+    self.best_metrics_value = None
 
 
   def update(self, pred, target, phase):
@@ -146,8 +151,15 @@ class APRFSJC():
   def value(self):
     return self.metrics['test']['accuracy']
   
-  def details(self):
-    return self.metrics['test']
+  def details(self, best=True):
+    if best:
+      details = self.best_metrics_details
+    else:
+      details = self.metrics['test']
+    return details
+  
+  def store(self):
+    self.best_metrics_details = self.metrics['test']
 
 
 

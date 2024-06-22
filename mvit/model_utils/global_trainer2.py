@@ -171,6 +171,8 @@ class Trainer():
       master_metric_value = self.metrics[0].value()
       if master_metric_value > self.best_metric_value:
         self.best_metric_value = master_metric_value
+        for metric in self.metrics:
+          metric.store()
         self.best_model = self.model.state_dict().copy()
       else:
         self.low_performance_rounds += 1
