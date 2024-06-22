@@ -17,7 +17,7 @@ class TrainingManager():
   def __init__(self, config_folder, metrics, device, 
                flm_model_class=SimpleLinearModel, 
                slm_model_class=MultiLevelMemoryModel, retrain=False,
-               flm_loss_fn=torch.nn.CrossEntropyLoss, slm_loss_fn=torch.nn.CrossEntropyLoss):
+               flm_loss_fn=torch.nn.CrossEntropyLoss(), slm_loss_fn=torch.nn.CrossEntropyLoss()):
     self.flm_loss_fn = flm_loss_fn
     self.slm_loss_fn = slm_loss_fn
     self.config_files = self.get_config_files(config_folder)
