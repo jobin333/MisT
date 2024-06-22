@@ -51,6 +51,10 @@ class TrainingManager():
     trainer.train(cfg.flm_max_epoch)
     
     for metric in  self.metrics:
+      if hasattr(metric, 'details'):
+          config_name = 'flm_' + metric.name + '_details'
+          config_value = metric.details()
+          cfg.__setattr__(config_name, config_value)
       config_name = 'flm_' + metric.name 
       config_value = metric.value()
       cfg.__setattr__(config_name, config_value)
