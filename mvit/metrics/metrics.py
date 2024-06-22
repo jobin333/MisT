@@ -163,7 +163,7 @@ class APRFSJC():
     return details
   
   def store(self):
-    self.best_metrics_details = self.metrics['test']
+    self.best_metrics_details = self.metrics['test'].copy()
 
 
 
