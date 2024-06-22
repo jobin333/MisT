@@ -39,6 +39,10 @@ class Accuracy():
     self.datapoints_seen[phase] = 0
     self.correct_prediction[phase] = 0
 
+  def store(self):
+    pass
+
+
 
 class ConfusionMatrix():
   def __init__(self):
