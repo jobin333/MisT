@@ -16,7 +16,10 @@ class TrainingManager():
     
   def __init__(self, config_folder, metrics, device, 
                flm_model_class=SimpleLinearModel, 
-               slm_model_class=MultiLevelMemoryModel, retrain=False):
+               slm_model_class=MultiLevelMemoryModel, retrain=False,
+               flm_loss_fn=torch.nn.CrossEntropyLoss, slm_loss_fn=torch.nn.CrossEntropyLoss):
+    self.flm_loss_fn = flm_loss_fn
+    self.slm_loss_fn = slm_loss_fn
     self.config_files = self.get_config_files(config_folder)
     self.device = device
     self.metrics = metrics
@@ -44,7 +47,7 @@ class TrainingManager():
     
     trainer = Trainer(dataset_manager, self.device, self.metrics, flm,
                    save_model_param_path=cfg.flm_save_param_path,
-                   loss_fn=torch.nn.CrossEntropyLoss(), optimizer_fn=torch.optim.Adam, 
+                   loss_fn=self.flm_loss_fn, optimizer_fn=torch.optim.Adam, 
                    optimizer_params={'lr':cfg.flm_lr}, save_during_training=False,
                    stop_epoch_count=cfg.flm_stop_epoch_count, model_name = cfg.flm_model_name)
     
@@ -83,7 +86,7 @@ class TrainingManager():
 
     trainer = Trainer(dataset_manager, self.device, self.metrics, slm,
                   save_model_param_path=cfg.slm_save_param_path,
-                  loss_fn=torch.nn.CrossEntropyLoss(), optimizer_fn=torch.optim.Adam, 
+                  loss_fn=self.slm_loss_fn, optimizer_fn=torch.optim.Adam, 
                   optimizer_params={'lr':cfg.slm_lr}, save_during_training=False,
                   stop_epoch_count=cfg.slm_stop_epoch_count, model_name = cfg.slm_model_name)
     
