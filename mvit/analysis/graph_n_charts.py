@@ -2,6 +2,8 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib import pyplot as plt 
 import torch
+from sklearn.metrics import ConfusionMatrixDisplay
+
 
 from mvit.metrics.metrics import APRFSJC
 
@@ -80,6 +82,27 @@ class TemporalPhasePlotter():
 
     if display:
       plt.show()
+
+
+def generate_confusion_matrix(config_path, save_path=None, font_size=8, xticks_rotation=90, dpi=100):
+    data = torch.load(config_path)
+    speculative_confusion = data['slm_metrics_details']['confusion']
+    speculative_confusion
+
+    dataset_details = data['dataset_details']
+    dataset_name = data['dataset_name']
+    surgical_phases = dataset_details[dataset_name]['surgical_phases']
+    surgical_phases
+
+    disp = ConfusionMatrixDisplay(speculative_confusion, 
+                                  display_labels=surgical_phases )
+    plt.rcParams.update({'font.size': font_size})    
+    disp.plot(xticks_rotation=xticks_rotation)
+    plt.tight_layout()
+    if save_path is not None:
+        plt.savefig(save_path, dpi=dpi)
+    plt.show()
+
 
 
 if __name__ == '__main__':
