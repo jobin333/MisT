@@ -9,23 +9,37 @@ from mvit.metrics.metrics import APRFSJC
 
 
 class TemporalPhasePlotter():
+
   def __init__(self, shade_color='blue', colors=None, cmap=None,  dataset_name = 'cholec80', dpi=100):
     '''
     colors : optional,  List of colors; based on this cmap is created, 
-            Total classes + 1 colors are needed
+            Total classes colors are needed
     cmap: The plot is based on cmap, it is given
 
     shaded_color: if colors and cmap are not provided, plot will generated based in shade_color
     '''
     
     self.surg_phases = self.get_surgical_phases(dataset_name)
-    segments = len(self.surg_phases)
+    num_classes = len(self.surg_phases)
+    if colors is not None:
+      colors = colors[:num_classes]
+      colors = colors + ['white']
+
     if cmap is None:
-      self.cmap = self.create_phase_color_map(shade_color=shade_color, segments=segments, colors=colors)
+      self.cmap = self.create_phase_color_map(shade_color=shade_color, segments=num_classes, colors=colors)
     else:
       self.cmap = cmap
     self.dpi = dpi
 
+  def padded_stack(self, data, padding_value):
+    padded_data = []
+    max_len = max([len(item) for item in data])
+    padding = [max_len - len(item) for item in data]
+    for pad_len, data in zip(padding, data):
+        item = torch.nn.functional.pad(data, (0,pad_len), value=padding_value)
+        padded_data.append(item)
+    return torch.stack(padded_data)
+  
   def get_surgical_phases(self, dataset_name):
 
     cholec80_surgical_phases = ['Preparation', 'CalotTriangleDissection', 'ClippingCutting',
@@ -78,7 +92,13 @@ class TemporalPhasePlotter():
     return cmap
 
 
-  def generate_phase_plot(self, y, save_file=None, display=True, linewidth=20, seperator_color='white'):
+  def generate_phase_plot(self, path, data_key='slm_metrics_details', 
+                          label_key='yt', save_file=None, num_video_files=10,
+                          display=True, linewidth=5, seperator_color='white'):
+    data = torch.load(path)
+    y = data[data_key][label_key][:num_video_files]
+    y = self.padded_stack(y)
+
     plt.imshow(y, aspect='auto', interpolation='none', cmap=self.cmap)
     cbar = plt.colorbar()
     nums = len(y)
