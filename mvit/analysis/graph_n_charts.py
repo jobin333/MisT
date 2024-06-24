@@ -9,11 +9,19 @@ from mvit.metrics.metrics import APRFSJC
 
 
 class TemporalPhasePlotter():
-  def __init__(self, shade_color='blue', cmap=None,  dataset_name = 'cholec80', dpi=100):
+  def __init__(self, shade_color='blue', colors=None, cmap=None,  dataset_name = 'cholec80', dpi=100):
+    '''
+    colors : optional,  List of colors; based on this cmap is created, 
+            Total classes + 1 colors are needed
+    cmap: The plot is based on cmap, it is given
+
+    shaded_color: if colors and cmap are not provided, plot will generated based in shade_color
+    '''
+    
     self.surg_phases = self.get_surgical_phases(dataset_name)
     segments = len(self.surg_phases)
     if cmap is None:
-      self.cmap = self.create_phase_color_map(shade_color=shade_color, segments=segments)
+      self.cmap = self.create_phase_color_map(shade_color=shade_color, segments=segments, colors=colors)
     else:
       self.cmap = cmap
     self.dpi = dpi
@@ -45,7 +53,7 @@ class TemporalPhasePlotter():
     return surg_phases
     
 
-  def create_phase_color_map(self, shade_color='blue', segments=7):
+  def create_phase_color_map(self, shade_color='blue', colors=None, segments=7):
     '''
     supported shaded are 'blue', 'green', 'red', 'cyan'
     '''
@@ -54,17 +62,18 @@ class TemporalPhasePlotter():
     blue = np.array((0, 0, 1))
     white = red + green + blue
 
-    colors = []
-    for i in range(10-segments, 10):
-      shade = {}
-      shade['red'] = red*0.1*(i) + blue*0.1*(i-3) + green*0.1*(i-3)
-      shade['blue'] = blue*0.1*(i) + red*0.1*(i-3) + green*0.1*(i-3)
-      shade['green'] = green*0.1*(i) + red*0.1*(i-3) + blue*0.1*(i-3)
-      shade['cyan'] = green*0.1*(i) + red*0.1*(i-3) + blue*0.1*(i)
+    if colors is None:
+      colors = []
+      for i in range(10-segments, 10):
+        shade = {}
+        shade['red'] = red*0.1*(i) + blue*0.1*(i-3) + green*0.1*(i-3)
+        shade['blue'] = blue*0.1*(i) + red*0.1*(i-3) + green*0.1*(i-3)
+        shade['green'] = green*0.1*(i) + red*0.1*(i-3) + blue*0.1*(i-3)
+        shade['cyan'] = green*0.1*(i) + red*0.1*(i-3) + blue*0.1*(i)
 
-      colors.append(shade[shade_color])
-      
-    colors.append(white)
+        colors.append(shade[shade_color])
+        
+      colors.append(white)
     cmap = LinearSegmentedColormap.from_list('phase_map', colors, 8)
     return cmap
 
