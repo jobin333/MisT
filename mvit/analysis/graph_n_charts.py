@@ -9,10 +9,13 @@ from mvit.metrics.metrics import APRFSJC
 
 
 class TemporalPhasePlotter():
-  def __init__(self, shade_color='blue', dataset_name = 'cholec80', dpi=100):
+  def __init__(self, shade_color='blue', cmap=None,  dataset_name = 'cholec80', dpi=100):
     self.surg_phases = self.get_surgical_phases(dataset_name)
     segments = len(self.surg_phases)
-    self.cmap = self.create_phase_color_map(shade_color=shade_color, segments=segments)
+    if cmap is None:
+      self.cmap = self.create_phase_color_map(shade_color=shade_color, segments=segments)
+    else:
+      self.cmap = cmap
     self.dpi = dpi
 
   def get_surgical_phases(self, dataset_name):
