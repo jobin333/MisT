@@ -20,13 +20,13 @@ class TemporalPhasePlotter():
     '''
     
     self.surg_phases = self.get_surgical_phases(dataset_name)
-    num_classes = len(self.surg_phases)
+    self.num_classes = len(self.surg_phases)
     if colors is not None:
-      colors = colors[:num_classes]
+      colors = colors[:self.num_classes]
       colors = colors + ['white']
 
     if cmap is None:
-      self.cmap = self.create_phase_color_map(shade_color=shade_color, segments=num_classes, colors=colors)
+      self.cmap = self.create_phase_color_map(shade_color=shade_color, segments=self.num_classes, colors=colors)
     else:
       self.cmap = cmap
     self.dpi = dpi
@@ -97,7 +97,7 @@ class TemporalPhasePlotter():
                           display=True, linewidth=5, seperator_color='white'):
     data = torch.load(path)
     y = data[data_key][label_key][:num_video_files]
-    y = self.padded_stack(y)
+    y = self.padded_stack(y, self.num_classes)
 
     plt.imshow(y, aspect='auto', interpolation='none', cmap=self.cmap)
     cbar = plt.colorbar()
