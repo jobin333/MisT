@@ -139,6 +139,8 @@ def generate_confusion_matrix(config_path, save_path=None, font_size=8, xticks_r
 
 if __name__ == '__main__':
 
+  #
+
   metric = APRFSJC()
   for i in range(8):
     yt = torch.randint(0, 7, (1000,))
@@ -148,7 +150,8 @@ if __name__ == '__main__':
 
   y = metric.metrics['test']['yt']
   y = torch.stack(y, dim=0)
-  phase_plotter = TemporalPhasePlotter(shade_color='cyan', dataset_name='cholec80')
-  phase_plotter.generate_phase_plot(y, 'test.svg', linewidth=20)
-
+  path = '/workspace/Models3/cholec80_Swin3D_S_0_pt.config'
+  colors = ['brown', 'chocolate', 'olive', 'teal', 'steelblue', 'purple', 'mediumvioletred', 'gray', 'navy']
+  plotter = TemporalPhasePlotter(colors=colors)
+  plotter.generate_phase_plot(path, linewidth=5, label_key='yt')
 

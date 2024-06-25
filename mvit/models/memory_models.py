@@ -7,10 +7,12 @@ class MultiLevelMemoryModel(torch.nn.Module):
     
     '''
     def __init__(self, predictor_model, stack_length, roll_count,
-                 number_path, path_multiplier, dropout=0.0, num_surg_phase=7): ## roll_count ->  lookback interval
+                 number_path, path_multiplier, dropout=0.0, num_surg_phase=7, roll_start_with_one=False): ## roll_count ->  lookback interval
         super().__init__()
         self.stack_length = stack_length
         self.rolls = path_multiplier**torch.arange(number_path)*roll_count
+        if roll_start_with_one:
+            self.rolls = torch.cat([self.rolls, torch.ones(1)])
         self.rolls = self.rolls.to(torch.int)
         self.predictor_model = predictor_model
         self.disable_gradient(self.predictor_model)
