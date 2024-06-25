@@ -1,13 +1,6 @@
 import os
 import torch
-import torchvision
 import random
-
-from mvit.models.linear_models import SimpleLinearModel
-from mvit.model_utils.global_trainer2 import Trainer 
-from mvit.data_utils.global_dataset_manager import ModelOuptutDatasetManager
-from mvit.metrics.metrics import Accuracy
-
 
 class TrainerConfigurationGenerator():
 
@@ -90,6 +83,7 @@ class TrainerConfigurationGenerator():
         else:
             file_indices = list( range(1, video_count+1) )
             if self.random_train_test:
+                random.seed(self.random_seed)
                 random.shuffle(file_indices)
 
             test_file_count = dataset_spec['test_file_count']
