@@ -85,7 +85,7 @@ class TrainingManager():
                                 path_multiplier=cfg.slm_path_multiplier, dropout=cfg.slm_dropout, 
                                 num_surg_phase=cfg.out_features, rolls=cfg.slm_rolls, roll_start_with_one=cfg.slm_roll_start_with_one)
     else:
-      slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.cfg.slm_stack_length,
+      slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
                                  rolls=cfg.slm_rolls, dropout=cfg.slm_dropout,
                                    nhead=cfg.slm_nhead, dim_feedforward=cfg.slm_dim_feedforward,
                                      num_layers=cfg.slm_num_layers,  num_surg_phase=cfg.out_features,
