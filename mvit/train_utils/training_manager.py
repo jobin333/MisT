@@ -112,6 +112,8 @@ class TrainingManager():
     cfg.__setattr__('slm_training_completed', True)
     trainer.save_model()
     cfg.save()
+    if hasattr(metric, 'details'):
+      return metric.details()
     
   def train(self, enable_flm_train=True, enable_slm_train=True):
     for config_file in self.config_files:
@@ -119,4 +121,5 @@ class TrainingManager():
       if enable_flm_train:
         self.train_flm(config_file)
       if enable_slm_train:
-        self.train_slm(config_file)
+        metric_details = self.train_slm(config_file)
+        return metric_details
