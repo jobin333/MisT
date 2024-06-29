@@ -79,10 +79,17 @@ class TrainingManager():
     flm = self.flm_model_class(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
     flm.load_state_dict( torch.load(cfg.flm_save_param_path) )
     
-    slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
-                                roll_count=cfg.slm_roll_count, number_path=cfg.slm_number_path,
+    if self.slm_model_class.__name__ == MultiLevelMemoryModel:
+      slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
+                                  roll_count=cfg.slm_roll_count, number_path=cfg.slm_number_path,
                                 path_multiplier=cfg.slm_path_multiplier, dropout=cfg.slm_dropout, 
                                 num_surg_phase=cfg.out_features, rolls=cfg.slm_rolls, roll_start_with_one=cfg.slm_roll_start_with_one)
+    else:
+      slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.cfg.slm_stack_length,
+                                 rolls=cfg.slm_rolls, dropout=cfg.slm_dropout,
+                                   nhead=cfg.slm_nhead, dim_feedforward=cfg.slm_dim_feedforward,
+                                     num_layers=cfg.slm_num_layers,  num_surg_phase=cfg.out_features,
+                                      dmodel=cfg.slm_dmodel)
 
     trainer = Trainer(dataset_manager, self.device, self.metrics, slm,
                   save_model_param_path=cfg.slm_save_param_path,
