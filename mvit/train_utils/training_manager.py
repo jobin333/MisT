@@ -130,9 +130,8 @@ class TrainingManager():
     #                                   dmodel=cfg.slm_dmodel)
 
     slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
-                                  roll_count=cfg.slm_roll_count, number_path=cfg.slm_number_path,
-                                path_multiplier=cfg.slm_path_multiplier, dropout=cfg.slm_dropout, 
-                                num_surg_phase=cfg.out_features, rolls=cfg.slm_rolls, roll_start_with_one=cfg.slm_roll_start_with_one)
+                                  dropout=cfg.slm_dropout, 
+                                num_surg_phase=cfg.out_features, rolls=cfg.slm_rolls)
    
 
     trainer = Trainer(dataset_manager, self.device, self.metrics, slm,
