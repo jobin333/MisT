@@ -74,13 +74,13 @@ class TrainingManager():
         
 
   def save_model_output(self, config_file):
+    cfg = TrainerConfigurationGenerator(config_file)
     dataset_manager = ModelOuptutDatasetManager(cfg.feature_folder, cfg.feature_model_name, cfg.dataset_name,
                                                 cfg.train_file_indices, cfg.test_file_indices, seq_length=cfg.flm_seq_length, 
                                                 device=self.device, in_test_set=cfg.contain_test_set)
     
     flm = self.flm_model_class(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
     
-    cfg = TrainerConfigurationGenerator(config_file)
     flm_out = {True: [], False:[]} 
 
     training = True
