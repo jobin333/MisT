@@ -42,6 +42,28 @@ class TrainingManager():
                                                 self.cfg.train_file_indices, self.cfg.test_file_indices,  seq_length=self.cfg.flm_seq_length, 
                                                 device=self.device, in_test_set=self.cfg.contain_test_set)
     self.flm = self.flm_model_class(in_features=self.cfg.in_features, out_features=self.cfg.out_features, seq_length=self.cfg.flm_seq_length)
+    self.flm = self.flm.to(self.device)
+
+  def save_flm_out_n_clear_memory(self):
+      self.flm.eval()
+      flm_out = {True: [], False:[]} 
+
+      for training in [True, False]:
+        for dataloader in  self.dataset_manager.get_dataloaders(training):
+            dataloader_out = []
+            for x, y in dataloader:
+                x = x.to(self.device)
+                y = y.to(self.device)
+                z = self.flm(x)
+                dataloader_out.append((z,y))  
+            flm_out[training].append(dataloader_out)
+
+      torch.save(flm_out, self.cfg.flm_save_model_out_file)
+
+      del(self.dataset_manager)
+      self.dataset_manager = SimpleModelOutDatasetManager(self.cfg.flm_save_model_out_file)
+
+
 
 
   def get_config_files(self, config_folder):
@@ -72,6 +94,7 @@ class TrainingManager():
       self.cfg.__setattr__(config_name, config_value)
     self.cfg.__setattr__('flm_training_completed', True)
     trainer.save_model()
+    self.save_flm_out_n_clear_memory()
     self.cfg.save()
         
 
