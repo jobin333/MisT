@@ -39,7 +39,7 @@ class TrainingManager():
     config_files = glob.glob(config_path_re)
     return config_files
 
-  def train_flm(self, config_file, save_model_out=False):
+  def train_flm(self, config_file):
     cfg = TrainerConfigurationGenerator(config_file)
 
     if not self.retrain and cfg.flm_training_completed:
@@ -70,12 +70,17 @@ class TrainingManager():
       cfg.__setattr__(config_name, config_value)
     cfg.__setattr__('flm_training_completed', True)
     trainer.save_model()
-    if save_model_out:
-      self.save_model_output(flm, dataset_manager, cfg)
     cfg.save()
         
 
-  def save_model_output(self, flm, dataset_manager, cfg):
+  def save_model_output(self, config_file):
+    dataset_manager = ModelOuptutDatasetManager(cfg.feature_folder, cfg.feature_model_name, cfg.dataset_name,
+                                                cfg.train_file_indices, cfg.test_file_indices, seq_length=cfg.flm_seq_length, 
+                                                device=self.device, in_test_set=cfg.contain_test_set)
+    
+    flm = self.flm_model_class(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
+    
+    cfg = TrainerConfigurationGenerator(config_file)
     flm_out = {True: [], False:[]} 
 
     training = True
@@ -163,8 +168,9 @@ class TrainingManager():
     for config_file in self.config_files:
       print(f'Training using config file {config_file}')
       if enable_flm_train:
-        self.train_flm(config_file, save_model_out=enable_low_memory)
-
+        self.train_flm(config_file)
+      if enable_low_memory:
+         self.save_model_output(config_file)
       if enable_slm_train:
         metric_details = self.train_slm(config_file, enable_low_memory)
         # Return last metric details
