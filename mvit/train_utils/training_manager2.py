@@ -45,9 +45,14 @@ class TrainingManager():
     self.flm = self.flm_model_class(in_features=self.cfg.in_features, out_features=self.cfg.out_features, seq_length=self.cfg.flm_seq_length)
     self.flm = self.flm.to(self.device)
 
-  def save_flm_out_n_clear_memory(self):
+  def save_flm_out_n_clear_memory(self, in_cpu=True):
       gc.collect()
-      cpu = torch.device('cpu')
+      if in_cpu:
+        device = torch.device('cpu')
+      else:
+        device = self.device
+
+      self.flm = self.flm.to(device)
       self.flm.eval()
       flm_out = {True: [], False:[]} 
 
@@ -55,10 +60,10 @@ class TrainingManager():
         for dataloader in  self.dataset_manager.get_dataloaders(training):
             dataloader_out = []
             for x, y in dataloader:
-                x = x.to(self.device)
-                y = y.to(self.device)
+                x = x.to(device)
+                y = y.to(device)
                 z = self.flm(x)
-                dataloader_out.append((z.to(cpu),y.to(cpu)))  
+                dataloader_out.append((z.to(device),y.to(device)))  
             flm_out[training].append(dataloader_out)
 
       torch.save(flm_out, self.cfg.flm_save_model_out_file)
