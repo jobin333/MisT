@@ -30,10 +30,10 @@ class TrainingManager():
     self.config_files = self.get_config_files(config_folder)
     self.device = device
     self.metrics = metrics
-    self.retrain = retrain
+    self.retrain = retrains
     self.flm_model_class = flm_model_class
     self.slm_model_class = slm_model_class
-    cfg = TrainerConfigurationGenerator(self.config_file)
+    self.cfg = TrainerConfigurationGenerator(self.config_file)
     self.dataset_manager = ModelOuptutDatasetManager(cfg.feature_folder, cfg.feature_model_name, cfg.dataset_name,
                                                 cfg.train_file_indices, cfg.test_file_indices,  seq_length=cfg.flm_seq_length, 
                                                 device=self.device, in_test_set=cfg.contain_test_set)
