@@ -98,6 +98,8 @@ class TrainingManager():
     for dataloader in  dataset_manager.get_dataloaders(training):
         dataloader_out = []
         for x, y in dataloader:
+            x = x.to(self.device)
+            y = y.to(self.device)
             z = flm(x)
             dataloader_out.append((z,y))  
         flm_out[training].append(dataloader_out)
