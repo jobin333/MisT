@@ -33,6 +33,10 @@ class TrainingManager():
     self.retrain = retrain
     self.flm_model_class = flm_model_class
     self.slm_model_class = slm_model_class
+
+
+  def initialize_training_data(self, config_file):
+    self.config_file = config_file
     self.cfg = TrainerConfigurationGenerator(self.config_file)
     self.dataset_manager = ModelOuptutDatasetManager(self.cfg.feature_folder, self.cfg.feature_model_name, self.cfg.dataset_name,
                                                 self.cfg.train_file_indices, self.cfg.test_file_indices,  seq_length=self.cfg.flm_seq_length, 
@@ -105,7 +109,7 @@ class TrainingManager():
   def train(self, enable_flm_train=True, enable_slm_train=True, enable_low_memory=True):
     for config_file in self.config_files:
       print(f'Training using config file {config_file}')
-      self.config_file = config_file
+      self.initialize_training_data(config_file)
       if enable_flm_train:
         self.train_flm()
       if enable_slm_train:
