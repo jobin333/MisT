@@ -2,6 +2,7 @@ import os
 import torch
 import torchvision
 import glob
+import gc
 
 from mvit.models.linear_models import SimpleLinearModel
 from mvit.model_utils.global_trainer2 import Trainer 
@@ -45,6 +46,7 @@ class TrainingManager():
     self.flm = self.flm.to(self.device)
 
   def save_flm_out_n_clear_memory(self):
+      gc.collect()
       self.flm.eval()
       flm_out = {True: [], False:[]} 
 
