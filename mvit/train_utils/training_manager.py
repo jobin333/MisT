@@ -104,7 +104,10 @@ class TrainingManager():
       print('Training already completed exiting')
       return
     
-    dataset_manager = ModelOuptutDatasetManager(cfg.feature_folder, cfg.feature_model_name, cfg.dataset_name,
+    if enable_low_memory:
+      dataset_manager = SimpleModelOutDatasetManager(cfg.flm_save_model_out_file)
+    else:
+      dataset_manager = ModelOuptutDatasetManager(cfg.feature_folder, cfg.feature_model_name, cfg.dataset_name,
                                                 cfg.train_file_indices, cfg.test_file_indices,  seq_length=cfg.flm_seq_length, 
                                                 device=self.device, in_test_set=cfg.contain_test_set)
 
@@ -114,17 +117,23 @@ class TrainingManager():
     else:
       flm = None
     
-    if self.slm_model_class.__name__ == MultiLevelMemoryModel:
-      slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
+    # if self.slm_model_class.__name__ == MultiLevelMemoryModel:
+    #   slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
+    #                               roll_count=cfg.slm_roll_count, number_path=cfg.slm_number_path,
+    #                             path_multiplier=cfg.slm_path_multiplier, dropout=cfg.slm_dropout, 
+    #                             num_surg_phase=cfg.out_features, rolls=cfg.slm_rolls, roll_start_with_one=cfg.slm_roll_start_with_one)
+    # else:
+    #   slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
+    #                              rolls=cfg.slm_rolls, dropout=cfg.slm_dropout,
+    #                                nhead=cfg.slm_nhead, dim_feedforward=cfg.slm_dim_feedforward,
+    #                                  num_layers=cfg.slm_num_layers,  num_surg_phase=cfg.out_features,
+    #                                   dmodel=cfg.slm_dmodel)
+
+    slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
                                   roll_count=cfg.slm_roll_count, number_path=cfg.slm_number_path,
                                 path_multiplier=cfg.slm_path_multiplier, dropout=cfg.slm_dropout, 
                                 num_surg_phase=cfg.out_features, rolls=cfg.slm_rolls, roll_start_with_one=cfg.slm_roll_start_with_one)
-    else:
-      slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
-                                 rolls=cfg.slm_rolls, dropout=cfg.slm_dropout,
-                                   nhead=cfg.slm_nhead, dim_feedforward=cfg.slm_dim_feedforward,
-                                     num_layers=cfg.slm_num_layers,  num_surg_phase=cfg.out_features,
-                                      dmodel=cfg.slm_dmodel)
+   
 
     trainer = Trainer(dataset_manager, self.device, self.metrics, slm,
                   save_model_param_path=cfg.slm_save_param_path,
