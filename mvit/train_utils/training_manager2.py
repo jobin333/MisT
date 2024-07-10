@@ -36,14 +36,25 @@ class TrainingManager():
     self.slm_model_class = slm_model_class
 
 
-  def initialize_training_data(self, config_file):
+  def initialize_training_data(self, config_file, for_flm=True):
     self.config_file = config_file
     self.cfg = TrainerConfigurationGenerator(self.config_file)
-    self.dataset_manager = ModelOuptutDatasetManager(self.cfg.feature_folder, self.cfg.feature_model_name, self.cfg.dataset_name,
+
+    if for_flm:
+      self.dataset_manager = ModelOuptutDatasetManager(self.cfg.feature_folder, self.cfg.feature_model_name, self.cfg.dataset_name,
                                                 self.cfg.train_file_indices, self.cfg.test_file_indices,  seq_length=self.cfg.flm_seq_length, 
                                                 device=self.device, in_test_set=self.cfg.contain_test_set)
-    self.flm = self.flm_model_class(in_features=self.cfg.in_features, out_features=self.cfg.out_features, seq_length=self.cfg.flm_seq_length)
-    self.flm = self.flm.to(self.device)
+      self.flm = self.flm_model_class(in_features=self.cfg.in_features, out_features=self.cfg.out_features, seq_length=self.cfg.flm_seq_length)
+      self.flm = self.flm.to(self.device)    
+      
+    else:
+      self.flm = None
+      self.dataset_manager = SimpleModelOutDatasetManager(self.cfg.flm_save_model_out_file)
+      self.slm = self.slm_model_class(predictor_model=self.flm, stack_length=self.cfg.slm_stack_length,
+                                  dropout=self.cfg.slm_dropout, 
+                                num_surg_phase=self.cfg.out_features, rolls=self.cfg.slm_rolls)
+      self.slm = self.slm.to(self.device)
+
 
   def save_flm_out_n_clear_memory(self, in_cpu=True):
       gc.collect()
@@ -69,7 +80,6 @@ class TrainingManager():
       torch.save(flm_out, self.cfg.flm_save_model_out_file)
 
       del(self.dataset_manager)
-      self.dataset_manager = SimpleModelOutDatasetManager(self.cfg.flm_save_model_out_file)
 
 
 
@@ -108,11 +118,7 @@ class TrainingManager():
 
     
   def train_slm(self):
-    slm = self.slm_model_class(predictor_model=self.flm, stack_length=self.cfg.slm_stack_length,
-                                  dropout=self.cfg.slm_dropout, 
-                                num_surg_phase=self.cfg.out_features, rolls=self.cfg.slm_rolls)
-
-    trainer = Trainer(self.dataset_manager, self.device, self.metrics, slm,
+    trainer = Trainer(self.dataset_manager, self.device, self.metrics, self.slm,
                   save_model_param_path=self.cfg.slm_save_param_path,
                   loss_fn=self.slm_loss_fn, optimizer_fn=torch.optim.Adam, 
                   optimizer_params={'lr':self.cfg.slm_lr}, save_during_training=False,
@@ -140,9 +146,11 @@ class TrainingManager():
   def train(self, enable_flm_train=True, enable_slm_train=True, enable_low_memory=True):
     for config_file in self.config_files:
       print(f'Training using config file {config_file}')
-      self.initialize_training_data(config_file)
       if enable_flm_train:
+        self.initialize_training_data(config_file, for_flm=True)
         self.train_flm()
+        
       if enable_slm_train:
+        self.initialize_training_data(config_file, for_flm=False)
         metric_details = self.train_slm()
         return metric_details
