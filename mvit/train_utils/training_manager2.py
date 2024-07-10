@@ -41,19 +41,20 @@ class TrainingManager():
     self.cfg = TrainerConfigurationGenerator(self.config_file)
 
     if for_flm:
+      self.flm = self.flm_model_class(in_features=self.cfg.in_features, out_features=self.cfg.out_features, seq_length=self.cfg.flm_seq_length)
+      self.flm = self.flm.to(self.device)  
       self.dataset_manager = ModelOuptutDatasetManager(self.cfg.feature_folder, self.cfg.feature_model_name, self.cfg.dataset_name,
                                                 self.cfg.train_file_indices, self.cfg.test_file_indices,  seq_length=self.cfg.flm_seq_length, 
                                                 device=self.device, in_test_set=self.cfg.contain_test_set)
-      self.flm = self.flm_model_class(in_features=self.cfg.in_features, out_features=self.cfg.out_features, seq_length=self.cfg.flm_seq_length)
-      self.flm = self.flm.to(self.device)    
+  
       
     else:
       self.flm = None
-      self.dataset_manager = SimpleModelOutDatasetManager(self.cfg.flm_save_model_out_file)
       self.slm = self.slm_model_class(predictor_model=self.flm, stack_length=self.cfg.slm_stack_length,
                                   dropout=self.cfg.slm_dropout, 
                                 num_surg_phase=self.cfg.out_features, rolls=self.cfg.slm_rolls)
       self.slm = self.slm.to(self.device)
+      self.dataset_manager = SimpleModelOutDatasetManager(self.cfg.flm_save_model_out_file)
 
 
   def save_flm_out_n_clear_memory(self, in_cpu=True):
