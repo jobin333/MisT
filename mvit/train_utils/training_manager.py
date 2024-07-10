@@ -80,13 +80,16 @@ class TrainingManager():
                                                 device=self.device, in_test_set=cfg.contain_test_set)
     
     flm = self.flm_model_class(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
-    
+    flm.eval()
+    flm = flm.to(self.device)
     flm_out = {True: [], False:[]} 
 
     training = True
     for dataloader in  dataset_manager.get_dataloaders(training):
         dataloader_out = []
         for x, y in dataloader:
+            x = x.to(self.device)
+            y = y.to(self.device)
             z = flm(x)
             dataloader_out.append((z,y))  
         flm_out[training].append(dataloader_out)
