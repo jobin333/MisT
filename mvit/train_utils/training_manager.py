@@ -12,6 +12,13 @@ from mvit.models.memory_models import MultiLevelMemoryModel
 from mvit.logging_utils.logger import logger
 module_logger = logger.getChild(__name__)
 
+class SimpleModelOutDatasetManager():
+    def __init__(self, data_file):
+        self.data = torch.load(data_file)
+    def get_dataloaders(self, training=True):
+        return self.data[training]
+    
+
 class TrainingManager():
     
   def __init__(self, config_folder, metrics, device, 
@@ -32,7 +39,7 @@ class TrainingManager():
     config_files = glob.glob(config_path_re)
     return config_files
 
-  def train_flm(self, config_file):
+  def train_flm(self, config_file, save_model_out=False):
     cfg = TrainerConfigurationGenerator(config_file)
 
     if not self.retrain and cfg.flm_training_completed:
@@ -63,10 +70,35 @@ class TrainingManager():
       cfg.__setattr__(config_name, config_value)
     cfg.__setattr__('flm_training_completed', True)
     trainer.save_model()
+    if save_model_out:
+      self.save_model_output(flm, dataset_manager, cfg)
     cfg.save()
         
+
+  def save_model_output(self, flm, dataset_manager, cfg):
+    flm_out = {True: [], False:[]} 
+
+    training = True
+    for dataloader in  dataset_manager.get_dataloaders(training):
+        dataloader_out = []
+        for x, y in dataloader:
+            z = flm(x)
+            dataloader_out.append((z,y))  
+        flm_out[training].append(dataloader_out)
+        
+    training = False
+    for dataloader in  dataset_manager.get_dataloaders(training):
+        dataloader_out = []
+        for x, y in dataloader:
+            z = flm(x)
+            dataloader_out.append((z,y))  
+        flm_out[training].append(dataloader_out)
+
+    torch.save(flm_out, cfg.flm_save_model_out_file)
+
+
     
-  def train_slm(self, config_file):
+  def train_slm(self, config_file, enable_low_memory):
     cfg = TrainerConfigurationGenerator(config_file)
     if not self.retrain and cfg.slm_training_completed:
       print('Training already completed exiting')
@@ -76,8 +108,11 @@ class TrainingManager():
                                                 cfg.train_file_indices, cfg.test_file_indices,  seq_length=cfg.flm_seq_length, 
                                                 device=self.device, in_test_set=cfg.contain_test_set)
 
-    flm = self.flm_model_class(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
-    flm.load_state_dict( torch.load(cfg.flm_save_param_path) )
+    if not enable_low_memory:
+      flm = self.flm_model_class(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
+      flm.load_state_dict( torch.load(cfg.flm_save_param_path) )
+    else:
+      flm = None
     
     if self.slm_model_class.__name__ == MultiLevelMemoryModel:
       slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
@@ -116,12 +151,13 @@ class TrainingManager():
     # Code to return last metric details
     return metric.details() if hasattr(metric, 'details') else None
     
-  def train(self, enable_flm_train=True, enable_slm_train=True):
+  def train(self, enable_flm_train=True, enable_slm_train=True, enable_low_memory=True):
     for config_file in self.config_files:
       print(f'Training using config file {config_file}')
       if enable_flm_train:
-        self.train_flm(config_file)
+        self.train_flm(config_file, save_model_out=enable_low_memory)
+
       if enable_slm_train:
-        metric_details = self.train_slm(config_file)
+        metric_details = self.train_slm(config_file, enable_low_memory)
         # Return last metric details
         return metric_details

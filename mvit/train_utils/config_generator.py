@@ -135,7 +135,7 @@ class TrainerConfigurationGenerator():
             'config_file_path' : config_file_path,
             'slm_training_completed': False,
             'flm_training_completed': False,
-            'flm_save_model_file': os.path.join(self.flm_model_out_path, uuid.uuid4().hex + '.pt')
+            'flm_save_model_out_file': os.path.join(self.flm_model_out_path, uuid.uuid4().hex + '.pt')
 
         }
         
