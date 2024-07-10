@@ -47,6 +47,7 @@ class TrainingManager():
 
   def save_flm_out_n_clear_memory(self):
       gc.collect()
+      cpu = torch.device('cpu')
       self.flm.eval()
       flm_out = {True: [], False:[]} 
 
@@ -57,7 +58,7 @@ class TrainingManager():
                 x = x.to(self.device)
                 y = y.to(self.device)
                 z = self.flm(x)
-                dataloader_out.append((z,y))  
+                dataloader_out.append((z.to(cpu),y.to(cpu)))  
             flm_out[training].append(dataloader_out)
 
       torch.save(flm_out, self.cfg.flm_save_model_out_file)
