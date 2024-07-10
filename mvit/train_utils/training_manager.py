@@ -115,7 +115,7 @@ class TrainingManager():
       flm = self.flm_model_class(in_features=cfg.in_features, out_features=cfg.out_features, seq_length=cfg.flm_seq_length)
       flm.load_state_dict( torch.load(cfg.flm_save_param_path) )
     else:
-      flm = None
+      flm = torch.zeros(1)
     
     # if self.slm_model_class.__name__ == MultiLevelMemoryModel:
     #   slm = self.slm_model_class(predictor_model=flm, stack_length=cfg.slm_stack_length,
