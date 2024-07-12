@@ -152,6 +152,7 @@ class TrainingManager():
     return metric.details() if hasattr(metric, 'details') else None
     
   def train(self, enable_flm_train=True, enable_slm_train=True, enable_low_memory=True):
+    details = []
     for config_file in self.config_files:
       print(f'Training using config file {config_file}')
       if enable_flm_train:
@@ -161,4 +162,5 @@ class TrainingManager():
       if enable_slm_train:
         self.initialize_training_data(config_file, for_flm=False)
         metric_details = self.train_slm()
-        return metric_details
+        details.append(metric_details)
+    return details
