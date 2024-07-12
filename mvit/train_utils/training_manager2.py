@@ -96,7 +96,7 @@ class TrainingManager():
     return config_files
 
   def train_flm(self):
-    module_logger.info(f'Started Training SLM using cfg_file {self.config_file}')
+    module_logger.info(f'Train FLM using {self.config_file}')
     if not self.retrain and self.cfg.flm_training_completed:
       print('Training already completed exiting')
       return
@@ -125,7 +125,7 @@ class TrainingManager():
 
     
   def train_slm(self):
-    module_logger.info(f'Started Training SLM using cfg_file {self.config_file}')
+    module_logger.info(f'Train SLM using {self.config_file}')
     trainer = Trainer(self.dataset_manager, self.device, self.metrics, self.slm,
                   save_model_param_path=self.cfg.slm_save_param_path,
                   loss_fn=self.slm_loss_fn, optimizer_fn=torch.optim.Adam, 
