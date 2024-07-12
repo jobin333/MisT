@@ -49,11 +49,16 @@ class TrainingManager():
   
       
     else:
-      self.flm = None
-      self.slm = self.slm_model_class(predictor_model=self.flm, stack_length=self.cfg.slm_stack_length,
-                                  dropout=self.cfg.slm_dropout, 
-                                num_surg_phase=self.cfg.out_features, rolls=self.cfg.slm_rolls)
-      self.slm = self.slm.to(self.device)
+      self.slm = self.slm_model_class(
+                        stack_length = self.cfg.slm_stack_length,
+                        strides = self.cfg.slm_strides,
+                        dropout = self.cfg.slm_dropout,
+                        nhead = self.cfg.slm_nhead,
+                        dim_feedforward = self.cfg.slm_dim_feedforward,
+                        num_layers = self.cfg.slm_num_layers,
+                        num_surg_phase = self.cfg.out_features,
+                        dmodel = self.cfg.slm_dmodel)     
+         
       self.dataset_manager = SimpleModelOutDatasetManager(self.cfg.flm_save_model_out_file)
 
 
