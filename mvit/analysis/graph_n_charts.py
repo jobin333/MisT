@@ -94,22 +94,23 @@ class TemporalPhasePlotter():
 
   def generate_phase_plot(self, path, data_key='slm_metrics_details', 
                           label_key='yt', save_file=None, num_video_files=10,
-                          display=True, linewidth=5, seperator_color='white'):
+                          display=True, linewidth=5, seperator_color='white',
+                          num_xticks = 8, figsize=(16,3), font_size=11):
+    plt.rcParams.update( {"figure.figsize" : figsize, 
+                          'font.size': font_size})
     data = torch.load(path)
     y = data[data_key][label_key][:num_video_files]
     y = self.padded_stack(y, self.num_classes)
-
+    
     plt.imshow(y, aspect='auto', interpolation='none', cmap=self.cmap)
     cbar = plt.colorbar()
     nums = len(y)
     for i in range(-1, nums):
       plt.axhline(i+0.5, 0, 1000, linewidth=linewidth, color=seperator_color)
-    plt.xlabel('Time')
+    plt.xlabel('Time (Minutes)')
     plt.ylabel('Video Number')
-    plt.yticks(ticks=list(range(10)), labels=data['test_file_indices'][:num_video_files])
-    plt.xticks(ticks=np.arange(8)*900, labels=np.arange(8)*15)
-
-
+    plt.yticks(ticks=list(range(num_video_files)), labels=data['test_file_indices'][:num_video_files])
+    plt.xticks(ticks=np.arange(num_xticks)*900, labels=np.arange(num_xticks)*15)
     cbar.ax.set_yticklabels(self.surg_phases)
     cbar.ax.tick_params(right=False)
 
@@ -118,6 +119,7 @@ class TemporalPhasePlotter():
 
     if display:
       plt.show()
+
 
 
 def generate_confusion_matrix(config_path, save_path=None, font_size=8, xticks_rotation=90, dpi=100):
