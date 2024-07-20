@@ -106,6 +106,8 @@ class TemporalPhasePlotter():
       plt.axhline(i+0.5, 0, 1000, linewidth=linewidth, color=seperator_color)
     plt.xlabel('Time')
     plt.ylabel('Video Number')
+    plt.yticks(ticks=list(range(10)), labels=data['test_file_indices'][:num_video_files])
+
     cbar.ax.set_yticklabels(self.surg_phases)
     cbar.ax.tick_params(right=False)
 
