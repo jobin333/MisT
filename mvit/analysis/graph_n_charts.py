@@ -122,20 +122,22 @@ class TemporalPhasePlotter():
 
 
 
-def generate_confusion_matrix(config_path, save_path=None, font_size=8, xticks_rotation=90, dpi=100):
+def generate_confusion_matrix(config_path, save_path=None, figsize=(7,7), 
+                              font_size=10, xticks_rotation=90, dpi=100):
+    plt.rcParams.update( {"figure.figsize" : figsize, 
+                          'font.size': font_size})
     data = torch.load(config_path)
-    speculative_confusion = data['slm_metrics_details']['confusion']
-    speculative_confusion
+    confusion = data['slm_metrics_details']['confusion']
+    confusion = confusion.astype('float') / confusion.sum(axis=1)[:, np.newaxis]
 
     dataset_details = data['dataset_details']
     dataset_name = data['dataset_name']
     surgical_phases = dataset_details[dataset_name]['surgical_phases']
     surgical_phases
 
-    disp = ConfusionMatrixDisplay(speculative_confusion, 
+    disp = ConfusionMatrixDisplay(confusion, 
                                   display_labels=surgical_phases )
-    plt.rcParams.update({'font.size': font_size})    
-    disp.plot(xticks_rotation=xticks_rotation)
+    disp.plot(xticks_rotation=xticks_rotation, colorbar=False)
     plt.tight_layout()
     if save_path is not None:
         plt.savefig(save_path, dpi=dpi)
