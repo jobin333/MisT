@@ -67,7 +67,7 @@ class MultiLevelTransformerMemoryModel(torch.nn.Module):
         if device is not None:
             self.device = device
         else:
-            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            self.device = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')
         
         self.dmodel=dmodel
         self.stack_length = stack_length
