@@ -162,3 +162,41 @@ class TrainingManager():
         self.initialize_training_data(config_file, for_flm=False)
         metric_details = self.train_slm()
         metric_details
+
+
+
+if __name__ == '__main__':
+
+  import os
+  import torch
+  import torchvision
+  import random
+  import glob
+  import math
+  from torch import nn
+  from torch.nn import  TransformerEncoderLayer, TransformerEncoder
+
+
+  from mvit.models.linear_models import SimpleLinearModel
+  from mvit.models.transformer_models import MultiLevelTransformerMemoryModel
+  from mvit.model_utils.global_trainer2 import Trainer 
+  from mvit.data_utils.global_dataset_manager import ModelOuptutDatasetManager
+  from mvit.metrics.metrics import Accuracy,  APRFSJC
+  from mvit.train_utils.config_generator import TrainerConfigurationGenerator
+  from mvit.models.memory_models import MultiLevelMemoryModel
+  from mvit.train_utils.training_manager2 import TrainingManager
+  from mvit.configs.trainer_config_2 import configs
+
+
+  device = torch.device('cuda:1')
+  # device = torch.device('cpu')
+  ## Config copy can be found in config folder
+  ## code for sample training
+  config_folder = configs['model_save_folder']
+  metrics = [APRFSJC(zero_division=1.0)]
+  train_manager = TrainingManager(config_folder, metrics, device, 
+                flm_model_class=SimpleLinearModel, 
+                slm_model_class=MultiLevelTransformerMemoryModel, retrain=True,
+                flm_loss_fn=torch.nn.CrossEntropyLoss(), slm_loss_fn=torch.nn.CrossEntropyLoss())
+
+  train_manager.train(enable_flm_train=False, enable_slm_train=True)
