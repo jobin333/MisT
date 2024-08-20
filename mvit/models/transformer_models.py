@@ -63,7 +63,12 @@ class MultiLevelTransformerMemoryModel(torch.nn.Module):
     def __init__(self, stack_length, strides, dropout, nhead, dim_feedforward, 
                  num_layers, num_surg_phase, dmodel, device=None): 
         super().__init__()
-
+        
+        if device is not None:
+            self.device = device
+        else:
+            self.device = torch.device('cuda' if torch.cuda().is_available else 'cpu')
+        
         self.dmodel=dmodel
         self.stack_length = stack_length
         self.strides = torch.tensor(strides)
@@ -85,11 +90,7 @@ class MultiLevelTransformerMemoryModel(torch.nn.Module):
         self.transformer_encoder = torch.nn.TransformerEncoder(self.transformer_encoder_layer, 
                                                                num_layers=num_layers)
         
-        if device is not None:
-            self.device = device
-        else:
-            self.device = torch.device('cuda' if torch.cuda().is_available else 'cpu')
-        
+
             
 
     def generate_positional_encoding(self,):
