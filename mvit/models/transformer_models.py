@@ -63,11 +63,11 @@ class MultiLevelTransformerMemoryModel(torch.nn.Module):
     def __init__(self, stack_length, strides, dropout, nhead, dim_feedforward, 
                  num_layers, num_surg_phase, dmodel, device=None): 
         super().__init__()
-        
+
         if device is not None:
             self.device = device
         else:
-            self.device = torch.device('cuda' if torch.cuda().is_available else 'cpu')
+            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         self.dmodel=dmodel
         self.stack_length = stack_length
