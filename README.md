@@ -37,7 +37,7 @@ The cholec80 dataset contains 80 surgical videos of Cholesystectomy surgery and 
 
 
 
-### M2CAI16
+### AutoLaparo
 The procedure of laparoscopic hysterectomy is divided into 7 phases:
 
 **Surgical Phases** 
@@ -51,5 +51,4 @@ The procedure of laparoscopic hysterectomy is divided into 7 phases:
 
 
 
-## Dataset into Tensor
-The torchvision.io.VideoReader class is utilized for converting the video data into corresponding tensor.
+## Training
