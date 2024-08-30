@@ -1,8 +1,14 @@
-# MisT:Multi-stride History Aware Transformer
+# MisT:Multi-stride History-Aware Transformer
 
 ## Introduction
 A Transformer based architecture for surgical phase classification on Cholec80,M2CAI16 and AutoLaparo Dataset
-**Framework**: Torch
+
+### Framework
+Torch
+
+### Requirements
+PyAV is a Pythonic binding for the FFmpeg libraries.
+`pip install av`
 
 ## Datasets
 The dataset used for this works are Cholec80, M2CAI16 and AutoLaparo
