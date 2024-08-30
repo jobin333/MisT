@@ -58,3 +58,5 @@ The procedure of laparoscopic hysterectomy is divided into 7 phases:
 
 
 ## Training
+you can use the `mvit.train_utils.training_manager2.Trainer` for training the model
+
